@@ -6,7 +6,7 @@ from flask import Flask, Response, render_template_string, request
 
 app = Flask(__name__)
 
-# Main HTML Page Template with Custom Image Background & Dark Glassmorphism UI
+# Main HTML Page Template with Background Image Slideshow Engine & Glassmorphism UI
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -17,9 +17,6 @@ HTML_TEMPLATE = """
     <style>
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(rgba(10, 10, 18, 0.75), rgba(10, 10, 18, 0.85)), 
-                        url('https://i.postimg.cc/kGB59Kvz/background-jpg.jpg') no-repeat center center fixed;
-            background-size: cover;
             color: #ffffff;
             margin: 0;
             padding: 20px;
@@ -28,6 +25,31 @@ HTML_TEMPLATE = """
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
+            background-color: #0d0d11;
+        }
+
+        /* Fullscreen Slideshow Background */
+        #bg-slideshow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background-size: cover;
+            background-position: center;
+            transition: background-image 1.5s ease-in-out;
+        }
+
+        /* Dark overlay for clean text readability */
+        #bg-slideshow::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(10, 10, 18, 0.75), rgba(10, 10, 18, 0.85));
         }
 
         .container {
@@ -41,6 +63,8 @@ HTML_TEMPLATE = """
             border-radius: 20px;
             padding: 35px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 0, 85, 0.2);
+            margin-top: auto;
+            margin-bottom: auto;
         }
 
         h1 {
@@ -187,6 +211,8 @@ HTML_TEMPLATE = """
     </style>
 </head>
 <body>
+    <div id="bg-slideshow"></div>
+
     <div class="container">
         <h1>Web & YouTube Proxy</h1>
         <p>Browse websites, search YouTube videos, and stream full ad-free videos!</p>
@@ -225,6 +251,26 @@ HTML_TEMPLATE = """
         </div>
         {% endif %}
     </div>
+
+    <script>
+        // YOUR GALLERY SLIDESHOW IMAGES (PASTE MORE DIRECT LINKS HERE IF YOU HAVE THEM):
+        const bgImages = [
+            'https://i.postimg.cc/jw4cM2Sx/1.jpg',
+            'https://i.postimg.cc/kGB59Kvz/background-jpg.jpg'
+        ];
+
+        let currentIndex = 0;
+        const bgDiv = document.getElementById('bg-slideshow');
+
+        function updateSlideshow() {
+            bgDiv.style.backgroundImage = `url('${bgImages[currentIndex]}')`;
+            currentIndex = (currentIndex + 1) % bgImages.length;
+        }
+
+        updateSlideshow();
+        // Switch picture every 5 seconds (5000 milliseconds)
+        setInterval(updateSlideshow, 5000);
+    </script>
 </body>
 </html>
 """
