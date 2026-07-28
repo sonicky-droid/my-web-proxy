@@ -23,4 +23,75 @@ HTML_TEMPLATE = """
 <body>
     <div class="container">
         <h1>Web Proxy</h1>
-        <form action="/proxy" method="
+        <form action="/proxy" method="GET">
+            <input type="text" name="url" placeholder="example.com or https://example.com" required />
+            <button type="submit">Browse</button>
+        </form>
+    </div>
+</body>
+</html>
+"""
+
+
+@app.route("/")
+def index():
+    return render_template_string(HTML_TEMPLATE)
+
+
+@app.route("/proxy", methods=["GET"])
+def proxy():
+    target_url = request.args.get("url")
+
+    if not target_url:
+        return "URL parameter is missing.", 400
+
+    if not target_url.startswith("http://") and not target_url.startswith(
+        "https://"
+    ):
+        target_url = "https://" + target_url
+
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        }
+
+        resp = requests.get(
+            target_url, headers=headers, timeout=10, allow_redirects=True
+        )
+
+        content_type = resp.headers.get("Content-Type", "")
+        content = resp.content
+
+        if "text/html" in content_type:
+            html_text = resp.text
+            base_tag = f'<base href="{target_url}">'
+
+            if "<head>" in html_text:
+                html_text = html_text.replace("<head>", f"<head>{base_tag}", 1)
+            else:
+                html_text = base_tag + html_text
+
+            content = html_text.encode("utf-8")
+
+        excluded_headers = [
+            "content-encoding",
+            "content-length",
+            "transfer-encoding",
+            "connection",
+        ]
+        response_headers = [
+            (name, value)
+            for (name, value) in resp.raw.headers.items()
+            if name.lower() not in excluded_headers
+        ]
+
+        return Response(content, resp.status_code, response_headers)
+
+    except Exception as e:
+        return f"Proxy Error: {str(e)}", 500
+
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
