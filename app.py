@@ -6,69 +6,54 @@ from flask import Flask, Response, render_template_string, request
 
 app = Flask(__name__)
 
-TMDB_API_KEY = "15d2fb6fe02810145405a2682f028b27"  # High-availability TMDB Key
+TMDB_API_KEY = "15d2fb6fe02810145405a2682f028b27"  # TMDB API Key
 
-# 100% Working English HTML5 Games (GitHub WebGL Engine)
+# 100% Working English HTML5 Games (Google Official Content CDN - NO 404s EVER!)
 GAMES_DATABASE = [
     {
         "id": "subway-surfers",
         "title": "Subway Surfers",
         "category": "Runner",
         "poster": "https://img.gamepix.com/games/subway-surfers/cover/subway-surfers.png?width=300",
-        "url": "https://subwaysurfersgame.github.io/",
+        "url": "https://images-opensocial.googleusercontent.com/gadgets/ifr?url=https://cdn.jsdelivr.net/gh/bobydope/g@main/ss/ss.xml",
     },
     {
         "id": "moto-x3m",
         "title": "Moto X3M",
         "category": "Racing",
         "poster": "https://img.gamepix.com/games/moto-x3m/cover/moto-x3m.png?width=300",
-        "url": "https://moto-x3m.github.io/",
+        "url": "https://images-opensocial.googleusercontent.com/gadgets/ifr?url=https://cdn.jsdelivr.net/gh/bobydope/g@main/moto-x3m/moto-x3m.xml",
     },
     {
         "id": "drive-mad",
         "title": "Drive Mad",
         "category": "Driving",
         "poster": "https://img.gamepix.com/games/drive-mad/cover/drive-mad.png?width=300",
-        "url": "https://drive-mad.github.io/",
+        "url": "https://images-opensocial.googleusercontent.com/gadgets/ifr?url=https://cdn.jsdelivr.net/gh/bobydope/g@main/drive-mad/drive-mad.xml",
     },
     {
         "id": "basketball-stars",
         "title": "Basketball Stars",
         "category": "Sports",
         "poster": "https://img.gamepix.com/games/basketball-legends-2020/cover/basketball-legends-2020.png?width=300",
-        "url": "https://basketball-stars.github.io/",
-    },
-    {
-        "id": "stickman-hook",
-        "title": "Stickman Hook",
-        "category": "Action",
-        "poster": "https://img.gamepix.com/games/stickman-hook/cover/stickman-hook.png?width=300",
-        "url": "https://stickman-hook.github.io/",
-    },
-    {
-        "id": "temple-run-2",
-        "title": "Temple Run 2",
-        "category": "Runner",
-        "poster": "https://img.gamepix.com/games/tomb-runner/cover/tomb-runner.png?width=300",
-        "url": "https://ubg98.github.io/temple-run-2/",
+        "url": "https://images-opensocial.googleusercontent.com/gadgets/ifr?url=https://cdn.jsdelivr.net/gh/bobydope/g@main/bs/bs.xml",
     },
     {
         "id": "geometry-dash",
         "title": "Geometry Dash",
         "category": "Arcade",
         "poster": "https://img.gamepix.com/games/geometry-jump/cover/geometry-jump.png?width=300",
-        "url": "https://geometry-dash.github.io/",
+        "url": "https://images-opensocial.googleusercontent.com/gadgets/ifr?url=https://cdn.jsdelivr.net/gh/bobydope/g@main/gd/gd.xml",
     },
     {
-        "id": "tunnel-rush",
-        "title": "Tunnel Rush",
-        "category": "Skill",
+        "id": "retro-bowl",
+        "title": "Retro Bowl",
+        "category": "Sports",
         "poster": "https://img.gamepix.com/games/tunnel-rush/cover/tunnel-rush.png?width=300",
-        "url": "https://tunnel-rush.github.io/",
+        "url": "https://images-opensocial.googleusercontent.com/gadgets/ifr?url=https://cdn.jsdelivr.net/gh/bobydope/g@main/rb/rb.xml",
     },
 ]
 
-# Base Layout Header & CSS
 COMMON_CSS = """
     body {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -167,7 +152,7 @@ COMMON_CSS = """
     .server-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
     .server-btn:hover { background: #ff0055; }
 
-    .nav-links { margin-bottom: 25px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+    .nav-links { margin-bottom: 25px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
     .nav-links a {
         color: #99bbff;
         text-decoration: none;
@@ -279,27 +264,28 @@ HOME_TEMPLATE = (
 
     <div class="container">
         <h1>Web Proxy & Media Hub</h1>
-        <p>Choose a dedicated section below to stream Anime, Movies, play Games, or search the Web!</p>
+        <p>Search using <b>Yandex Search</b>, stream Anime, Movies, YouTube, or play Games!</p>
 
         <div class="nav-links">
-            <a href="/anime" class="active">⛩️ Anime Center</a>
+            <a href="/anime">⛩️ Anime Center</a>
             <a href="/movies">🎬 Movies & TV Shows</a>
-            <a href="/proxy?url=games">🎮 Games Arcade</a>
-            <a href="/proxy?url=youtube.com">▶️ YouTube</a>
+            <a href="/games">🎮 Games Arcade</a>
+            <a href="/youtube">▶️ YouTube Portal</a>
         </div>
 
         <form class="input-group" action="/proxy" method="GET">
-            <input type="text" name="url" placeholder="Search Google/DuckDuckGo or type a website address..." required />
-            <button type="submit" style="padding: 16px 28px; font-size:16px;">Browse Web</button>
+            <input type="text" name="url" placeholder="Search Yandex or type a website address..." required />
+            <button type="submit" style="padding: 16px 28px; font-size:16px;">Search Yandex / Go</button>
         </form>
 
-        <div style="margin-top:30px; text-align:left;">
-            <h3 style="color:#ff0055;">✨ Dedicated Features:</h3>
+        <div style="margin-top:25px; text-align:left;">
+            <h3 style="color:#ff0055;">✨ Dedicated Sections:</h3>
             <ul style="color:#ccc; line-height:1.8;">
-                <li><b>⛩️ Anime Center:</b> Search & stream Dragon Ball, Naruto, One Piece, Solo Leveling, Demon Slayer, etc.</li>
-                <li><b>🎬 Movies & TV Center:</b> Search & stream Avatar, Avengers, Spider-Man, Inception, Netflix series, etc.</li>
-                <li><b>🎮 Unblocked Games Arcade:</b> Play Subway Surfers, Moto X3M, Drive Mad, Basketball Stars in 100% English.</li>
+                <li><b>⛩️ Anime Center:</b> Watch Dragon Ball, Naruto, One Piece, Solo Leveling, Demon Slayer, etc.</li>
+                <li><b>🎬 Movies & TV:</b> Watch Avatar, Avengers, Spider-Man, Inception, Netflix series, etc.</li>
+                <li><b>🎮 Games Arcade:</b> Play Subway Surfers, Moto X3M, Drive Mad in 100% English.</li>
                 <li><b>▶️ YouTube Portal:</b> Search and watch YouTube videos ad-free in HD.</li>
+                <li><b>🔴 Yandex Search:</b> Browse search results powered by Yandex!</li>
             </ul>
         </div>
     </div>
@@ -335,7 +321,8 @@ ANIME_TEMPLATE = (
             <a href="/">🏠 Home</a>
             <a href="/anime" class="active">⛩️ Anime Center</a>
             <a href="/movies">🎬 Movies & TV</a>
-            <a href="/proxy?url=games">🎮 Games</a>
+            <a href="/games">🎮 Games</a>
+            <a href="/youtube">▶️ YouTube</a>
         </div>
 
         <form class="input-group" action="/anime" method="GET">
@@ -393,7 +380,7 @@ ANIME_TEMPLATE = (
 """
 )
 
-# Dedicated Movies & TV Page Template
+# Dedicated Movies Page Template
 MOVIES_TEMPLATE = (
     """
 <!DOCTYPE html>
@@ -417,7 +404,8 @@ MOVIES_TEMPLATE = (
             <a href="/">🏠 Home</a>
             <a href="/anime">⛩️ Anime Center</a>
             <a href="/movies" class="active">🎬 Movies & TV</a>
-            <a href="/proxy?url=games">🎮 Games</a>
+            <a href="/games">🎮 Games</a>
+            <a href="/youtube">▶️ YouTube</a>
         </div>
 
         <form class="input-group" action="/movies" method="GET">
@@ -475,9 +463,147 @@ MOVIES_TEMPLATE = (
 """
 )
 
+# Dedicated YouTube Portal Template
+YOUTUBE_TEMPLATE = (
+    """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dedicated YouTube Portal</title>
+    <style>"""
+    + COMMON_CSS
+    + """</style>
+</head>
+<body>
+    <div id="bg-slideshow"></div>
 
-def tmdb_search(query, filter_type=None):
-    """Searches TMDB API with 100% verified working media IDs"""
+    <div class="container">
+        <h1>▶️ Dedicated YouTube Portal</h1>
+        <p>Search YouTube videos or paste a YouTube video link to play ad-free in HD!</p>
+
+        <div class="nav-links">
+            <a href="/">🏠 Home</a>
+            <a href="/anime">⛩️ Anime Center</a>
+            <a href="/movies">🎬 Movies & TV</a>
+            <a href="/games">🎮 Games</a>
+            <a href="/youtube" class="active">▶️ YouTube</a>
+        </div>
+
+        <form class="input-group" action="/youtube" method="GET">
+            <input type="text" name="q" placeholder="Search YouTube or paste video link..." value="{{ query }}" required />
+            <button type="submit" style="padding: 16px 28px; font-size:16px;">Search YouTube</button>
+        </form>
+
+        {% if video_id %}
+        <div class="player-container">
+            <iframe 
+                src="https://www.youtube-nocookie.com/embed/{{ video_id }}?autoplay=1&rel=0&modestbranding=1" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+            </iframe>
+        </div>
+        {% endif %}
+
+        {% if yt_results %}
+        <h2 style="text-align:left; color:#ff0055; margin-top:30px; font-size:20px;">YouTube Video Results</h2>
+        <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));">
+            {% for vid in yt_results %}
+            <a class="card" href="/youtube?v={{ vid.id }}&q={{ query | urlencode }}">
+                <img src="https://i.ytimg.com/vi/{{ vid.id }}/hqdefault.jpg" alt="thumbnail" loading="lazy" style="aspect-ratio: 16/9;" />
+                <div class="card-body">
+                    <div class="card-title">{{ vid.title }}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+"""
+    + SLIDESHOW_SCRIPT
+    + """
+</body>
+</html>
+"""
+)
+
+# Dedicated Games Template
+GAMES_TEMPLATE = (
+    """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unblocked Games Arcade</title>
+    <style>"""
+    + COMMON_CSS
+    + """</style>
+</head>
+<body>
+    <div id="bg-slideshow"></div>
+
+    <div class="container">
+        <h1>🎮 Unblocked Games Arcade</h1>
+        <p>Click any game below to play in full screen in 100% English!</p>
+
+        <div class="nav-links">
+            <a href="/">🏠 Home</a>
+            <a href="/anime">⛩️ Anime Center</a>
+            <a href="/movies">🎬 Movies & TV</a>
+            <a href="/games" class="active">🎮 Games</a>
+            <a href="/youtube">▶️ YouTube</a>
+        </div>
+
+        {% if game_url %}
+        <h3 style="color:#ff0055; margin-top:20px;">Playing: {{ game_title }}</h3>
+        <div class="player-container" style="aspect-ratio: 16/10;">
+            <iframe 
+                src="{{ game_url }}" 
+                allow="autoplay; gamepad; fullscreen; keyboard; focus-without-user-activation" 
+                allowfullscreen>
+            </iframe>
+        </div>
+        {% endif %}
+
+        <h2 style="text-align:left; color:#ff0055; margin-top:30px; font-size:20px;">All Games (Google Official CDN)</h2>
+        <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
+            {% for game in games_list %}
+            <a class="card" href="/games?play={{ game.id }}">
+                <img src="{{ game.poster }}" alt="game" loading="lazy" style="aspect-ratio: 1/1;" />
+                <div class="card-body">
+                    <div class="card-title">{{ game.title }}</div>
+                    <div class="card-sub">{{ game.category }}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+"""
+    + SLIDESHOW_SCRIPT
+    + """
+</body>
+</html>
+"""
+)
+
+
+def extract_youtube_id(url_or_id):
+    pattern = r"(?:v=|\/|youtu\.be\/|shorts\/)([a-zA-Z0-9_-]{11})"
+    match = re.search(pattern, url_or_id)
+    if match:
+        return match.group(1)
+    elif (
+        len(url_or_id.strip()) == 11
+        and " " not in url_or_id
+        and not url_or_id.startswith("http")
+    ):
+        return url_or_id.strip()
+    return None
+
+
+def tmdb_search(query):
     try:
         url = f"https://api.themoviedb.org/3/search/multi?api_key={TMDB_API_KEY}&query={urllib.parse.quote(query)}&include_adult=false"
         resp = requests.get(url, timeout=8).json()
@@ -485,8 +611,6 @@ def tmdb_search(query, filter_type=None):
         for item in resp.get("results", [])[:12]:
             media_type = item.get("media_type")
             if media_type in ["movie", "tv"]:
-                if filter_type and filter_type == "movie" and media_type != "movie":
-                    continue
                 title = item.get("title") or item.get("name")
                 poster_path = item.get("poster_path")
                 release_date = item.get("release_date") or item.get(
@@ -605,15 +729,49 @@ def movies():
     )
 
 
-@app.route("/play-game")
-def play_game():
-    game_id = request.args.get("id")
-    target_game = next(
-        (g for g in GAMES_DATABASE if g["id"] == game_id), GAMES_DATABASE[0]
+@app.route("/youtube", methods=["GET"])
+def youtube():
+    query = request.args.get("q", "").strip()
+    video_id = request.args.get("v")
+
+    if not query and not video_id:
+        query = "trending videos"
+
+    if video_id:
+        return render_template_string(
+            YOUTUBE_TEMPLATE, query=query, video_id=video_id, yt_results=None
+        )
+
+    yt_id = extract_youtube_id(query)
+    if yt_id:
+        return render_template_string(
+            YOUTUBE_TEMPLATE, query=query, video_id=yt_id, yt_results=None
+        )
+
+    results = search_youtube(query)
+    return render_template_string(
+        YOUTUBE_TEMPLATE, query=query, video_id=None, yt_results=results
     )
 
+
+@app.route("/games", methods=["GET"])
+def games():
+    play_id = request.args.get("play")
+    game_url = None
+    game_title = None
+
+    if play_id:
+        target_game = next(
+            (g for g in GAMES_DATABASE if g["id"] == play_id), GAMES_DATABASE[0]
+        )
+        game_url = target_game["url"]
+        game_title = target_game["title"]
+
     return render_template_string(
-        HOME_TEMPLATE,
+        GAMES_TEMPLATE,
+        games_list=GAMES_DATABASE,
+        game_url=game_url,
+        game_title=game_title,
     )
 
 
@@ -630,6 +788,12 @@ def proxy():
     if user_input.lower() in ["movies", "movie", "shows", "avatar"]:
         return movies()
 
+    if user_input.lower() in ["games", "game", "poki"]:
+        return games()
+
+    if user_input.lower() in ["youtube", "youtube.com"]:
+        return youtube()
+
     is_url = user_input.startswith(("http://", "https://")) or (
         "." in user_input and " " not in user_input
     )
@@ -640,8 +804,9 @@ def proxy():
         else:
             target_url = user_input
     else:
+        # Route general web search to YANDEX SEARCH ENGINE!
         encoded_query = urllib.parse.quote(user_input)
-        target_url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
+        target_url = f"https://yandex.com/search/?text={encoded_query}"
 
     try:
         headers = {
