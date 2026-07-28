@@ -6,14 +6,14 @@ from flask import Flask, Response, render_template_string, request
 
 app = Flask(__name__)
 
-# Main HTML Template with Slideshow Background
+# Main HTML Page Template with Background Image Slideshow Engine & Glassmorphism UI
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web, YouTube & Streaming Proxy</title>
+    <title>Web, YouTube & Anime Proxy</title>
     <style>
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -135,7 +135,7 @@ HTML_TEMPLATE = """
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 20px;
             text-align: left;
             margin-top: 25px;
@@ -161,30 +161,31 @@ HTML_TEMPLATE = """
 
         .card img {
             width: 100%;
-            aspect-ratio: 16 / 9;
+            aspect-ratio: 2 / 3;
             object-fit: cover;
             background: #000;
         }
 
-        .card-body { padding: 14px; }
-        .card-title { font-size: 14px; font-weight: 600; line-height: 1.4; }
+        .card-body { padding: 12px; }
+        .card-title { font-size: 14px; font-weight: 600; line-height: 1.3; }
+        .card-sub { font-size: 12px; color: #ff0055; margin-top: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div id="bg-slideshow"></div>
 
     <div class="container">
-        <h1>Web, YouTube & Movies</h1>
-        <p>Browse websites, search YouTube videos, or click below for Movies & Anime!</p>
+        <h1>Web, YouTube & Anime Proxy</h1>
+        <p>Browse websites, YouTube, or search any <b>Anime & Movie</b> (e.g. <i>Dragon Ball, Naruto, Avatar</i>)!</p>
         
         <form class="input-group" action="/proxy" method="GET">
-            <input type="text" name="url" placeholder="Search YouTube, type youtube.com, or enter a website..." value="{{ last_query }}" required />
-            <button type="submit">Search / Go</button>
+            <input type="text" name="url" placeholder="Search Anime/Movies, YouTube, or type a website address..." value="{{ last_query }}" required />
+            <button type="submit">Search / Stream</button>
         </form>
 
         <div class="nav-links">
+            <a href="/proxy?url=anime">⛩️ Popular Anime & Movies</a> | 
             <a href="/proxy?url=youtube.com">▶️ YouTube</a> | 
-            <a href="/movies" style="color:#ff0055; font-size:16px;">🎬 Direct Movies & Anime Site</a> | 
             <a href="/proxy?url=wikipedia.org">🌐 Wikipedia</a>
         </div>
 
@@ -198,12 +199,39 @@ HTML_TEMPLATE = """
         </div>
         {% endif %}
 
+        {% if stream_url %}
+        <h3 style="color:#ff0055; margin-top:20px;">Ad-Free Stream Player</h3>
+        <div class="player-container">
+            <iframe 
+                src="{{ stream_url }}" 
+                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+                allow="autoplay; encrypted-media; fullscreen" 
+                allowfullscreen>
+            </iframe>
+        </div>
+        {% endif %}
+
+        {% if anime_results %}
+        <h2 style="text-align:left; color:#ff0055; margin-top:30px; font-size:20px;">Anime & Movie Results</h2>
+        <div class="grid">
+            {% for show in anime_results %}
+            <a class="card" href="/watch-anime?id={{ show.id }}&title={{ show.title | urlencode }}">
+                <img src="{{ show.poster }}" alt="poster" loading="lazy" />
+                <div class="card-body">
+                    <div class="card-title">{{ show.title }}</div>
+                    <div class="card-sub">{{ show.episodes }} Ep</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         {% if yt_results %}
         <h2 style="text-align:left; color:#ff0055; margin-top:30px; font-size:20px;">YouTube Videos</h2>
-        <div class="grid">
+        <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));">
             {% for vid in yt_results %}
             <a class="card" href="/proxy?url=https://www.youtube.com/watch?v={{ vid.id }}">
-                <img src="https://i.ytimg.com/vi/{{ vid.id }}/hqdefault.jpg" alt="thumbnail" loading="lazy" />
+                <img src="https://i.ytimg.com/vi/{{ vid.id }}/hqdefault.jpg" alt="thumbnail" loading="lazy" style="aspect-ratio: 16/9;" />
                 <div class="card-body">
                     <div class="card-title">{{ vid.title }}</div>
                 </div>
@@ -238,95 +266,6 @@ HTML_TEMPLATE = """
 </html>
 """
 
-# Dedicated Direct Movies & Anime Portal Template (100% Allowed Embed Engine)
-MOVIE_PORTAL_TEMPLATE = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movies & Anime Portal</title>
-    <style>
-        body { font-family: 'Inter', -apple-system, sans-serif; background: #0d0d11; color: #fff; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
-        .header { width: 100%; max-width: 900px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .header a { color: #ff0055; text-decoration: none; font-weight: bold; font-size: 16px; }
-        .card-box { width: 100%; max-width: 900px; background: rgba(20,20,30,0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 30px; text-align: center; box-sizing: border-box; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
-        h1 { background: linear-gradient(135deg, #ff0055, #ff5500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; font-size: 32px; font-weight: 800; }
-        .search-row { display: flex; gap: 10px; margin-bottom: 20px; }
-        input[type="text"] { flex: 1; padding: 14px 18px; font-size: 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; outline: none; }
-        input[type="text"]:focus { border-color: #ff0055; }
-        button { padding: 14px 24px; background: linear-gradient(135deg, #ff0055, #ff5500); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        button:hover { opacity: 0.9; }
-        .player-frame { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); margin-top: 15px; box-shadow: 0 10px 30px rgba(255,0,85,0.25); }
-        iframe { width: 100%; height: 100%; border: none; }
-        .quick-tags { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px; }
-        .tag { background: rgba(255,255,255,0.08); padding: 8px 16px; border-radius: 20px; font-size: 14px; color: #ddd; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); transition: 0.2s; }
-        .tag:hover { background: #ff0055; color: white; border-color: #ff0055; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <a href="/">⬅️ Back to Main Proxy</a>
-        <span style="color:#aaa; font-size:14px;">HD Movie & Anime Stream Engine</span>
-    </div>
-
-    <div class="card-box">
-        <h1>🎬 HD Movie & Anime Stream</h1>
-        <p style="color:#bbb; font-size:14px; margin-bottom:20px;">Search any Movie, TV Show, or Anime title below to load the HD player:</p>
-        
-        <form class="search-row" onsubmit="event.preventDefault(); searchAndPlay();">
-            <input type="text" id="movieSearch" placeholder="Type a Movie or Anime (e.g. Naruto, Avatar, Spider-Man)..." required />
-            <button type="submit">Play Stream</button>
-        </form>
-
-        <div class="quick-tags">
-            <span class="tag" onclick="loadByTmdb('19995')">🌌 Avatar</span>
-            <span class="tag" onclick="loadByTmdb('299536')">🎬 Avengers: Endgame</span>
-            <span class="tag" onclick="loadByTmdb('372058')">⚔️ Your Name (Anime)</span>
-            <span class="tag" onclick="loadByTmdb('31910', true)">🍃 Naruto</span>
-            <span class="tag" onclick="loadByTmdb('1429', true)">⚔️ Attack on Titan</span>
-            <span class="tag" onclick="loadByTmdb('634649')">🕷️ Spider-Man: No Way Home</span>
-        </div>
-
-        <div class="player-frame">
-            <iframe id="videoPlayer" src="https://vidsrc.cc/v2/embed/movie/19995" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
-        </div>
-    </div>
-
-    <script>
-        async function searchAndPlay() {
-            const query = document.getElementById('movieSearch').value.trim();
-            if (!query) return;
-            try {
-                const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=15d2fb6fe02810145405a2682f028b27&query=${encodeURIComponent(query)}`);
-                const data = await res.json();
-                if (data.results && data.results.length > 0) {
-                    const item = data.results[0];
-                    if (item.media_type === 'tv') {
-                        document.getElementById('videoPlayer').src = `https://vidsrc.cc/v2/embed/tv/${item.id}/1/1`;
-                    } else {
-                        document.getElementById('videoPlayer').src = `https://vidsrc.cc/v2/embed/movie/${item.id}`;
-                    }
-                } else {
-                    alert("No title found. Try typing the exact movie or anime name!");
-                }
-            } catch (e) {
-                alert("Search error. Please try again.");
-            }
-        }
-
-        function loadByTmdb(tmdbId, isTv = false) {
-            if (isTv) {
-                document.getElementById('videoPlayer').src = `https://vidsrc.cc/v2/embed/tv/${tmdbId}/1/1`;
-            } else {
-                document.getElementById('videoPlayer').src = `https://vidsrc.cc/v2/embed/movie/${tmdbId}`;
-            }
-        }
-    </script>
-</body>
-</html>
-"""
-
 
 def extract_youtube_id(url_or_id):
     pattern = r"(?:v=|\/|youtu\.be\/|shorts\/)([a-zA-Z0-9_-]{11})"
@@ -340,6 +279,57 @@ def extract_youtube_id(url_or_id):
     ):
         return url_or_id.strip()
     return None
+
+
+def search_anilist(query):
+    """Searches AniList GraphQL API for any Anime or Movie (e.g. Dragon Ball, Naruto, etc.)"""
+    try:
+        url = "https://graphql.anilist.co"
+        graphql_query = """
+        query ($search: String) {
+          Page(perPage: 12) {
+            media(search: $search, type: ANIME) {
+              id
+              title {
+                english
+                romaji
+              }
+              coverImage {
+                extraLarge
+              }
+              episodes
+            }
+          }
+        }
+        """
+        response = requests.post(
+            url,
+            json={"query": graphql_query, "variables": {"search": query}},
+            timeout=8,
+        )
+        data = response.json()
+        results = []
+        media_list = data.get("data", {}).get("Page", {}).get("media", [])
+        for item in media_list:
+            title = (
+                item.get("title", {}).get("english")
+                or item.get("title", {}).get("romaji")
+                or "Unknown Title"
+            )
+            poster = item.get("coverImage", {}).get("extraLarge")
+            episodes = item.get("episodes") or 1
+            if poster:
+                results.append(
+                    {
+                        "id": item["id"],
+                        "title": title,
+                        "poster": poster,
+                        "episodes": episodes,
+                    }
+                )
+        return results
+    except Exception:
+        return []
 
 
 def search_youtube(query):
@@ -376,14 +366,31 @@ def search_youtube(query):
 @app.route("/")
 def index():
     return render_template_string(
-        HTML_TEMPLATE, video_id=None, yt_results=None, last_query=""
+        HTML_TEMPLATE,
+        video_id=None,
+        stream_url=None,
+        yt_results=None,
+        anime_results=None,
+        last_query="",
     )
 
 
-@app.route("/movies")
-def movies():
-    """Direct Movies & Anime Streaming Portal"""
-    return render_template_string(MOVIE_PORTAL_TEMPLATE)
+@app.route("/watch-anime")
+def watch_anime():
+    anime_id = request.args.get("id")
+    anime_title = request.args.get("title", "anime")
+
+    # Clean ad-free stream embed URL using AniList ID
+    stream_url = f"https://vidsrc.cc/v2/embed/anime/{anime_id}"
+
+    return render_template_string(
+        HTML_TEMPLATE,
+        video_id=None,
+        stream_url=stream_url,
+        yt_results=None,
+        anime_results=None,
+        last_query=anime_title,
+    )
 
 
 @app.route("/proxy", methods=["GET"])
@@ -393,6 +400,19 @@ def proxy():
     if not user_input:
         return "Search query or URL is missing.", 400
 
+    # 1. Anime & Movies Tab
+    if user_input.lower() in ["anime", "movies", "shows", "dragon ball"]:
+        results = search_anilist(user_input if user_input != "anime" else "Dragon Ball")
+        return render_template_string(
+            HTML_TEMPLATE,
+            video_id=None,
+            stream_url=None,
+            yt_results=None,
+            anime_results=results,
+            last_query=user_input,
+        )
+
+    # 2. YouTube Portal
     if user_input.lower() in [
         "youtube",
         "youtube.com",
@@ -405,19 +425,40 @@ def proxy():
         return render_template_string(
             HTML_TEMPLATE,
             video_id=None,
+            stream_url=None,
             yt_results=results,
+            anime_results=None,
             last_query="youtube.com",
         )
 
+    # 3. Direct YouTube Video Links
     yt_id = extract_youtube_id(user_input)
     if yt_id:
         return render_template_string(
-            HTML_TEMPLATE, video_id=yt_id, yt_results=None, last_query=user_input
+            HTML_TEMPLATE,
+            video_id=yt_id,
+            stream_url=None,
+            yt_results=None,
+            anime_results=None,
+            last_query=user_input,
         )
+
+    # 4. Search AniList first for Anime & Movies (e.g. Dragon Ball, Naruto, Avatar, etc.)
+    anime_hits = search_anilist(user_input)
 
     is_url = user_input.startswith(("http://", "https://")) or (
         "." in user_input and " " not in user_input
     )
+
+    if not is_url and anime_hits:
+        return render_template_string(
+            HTML_TEMPLATE,
+            video_id=None,
+            stream_url=None,
+            yt_results=None,
+            anime_results=anime_hits,
+            last_query=user_input,
+        )
 
     if is_url:
         if not user_input.startswith(("http://", "https://")):
@@ -430,7 +471,9 @@ def proxy():
             return render_template_string(
                 HTML_TEMPLATE,
                 video_id=None,
+                stream_url=None,
                 yt_results=results,
+                anime_results=None,
                 last_query=user_input,
             )
         else:
