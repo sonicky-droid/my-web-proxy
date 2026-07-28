@@ -6,7 +6,7 @@ from flask import Flask, Response, render_template_string, request
 
 app = Flask(__name__)
 
-# Main HTML Template
+# Main HTML Template with Slideshow Background
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -238,27 +238,91 @@ HTML_TEMPLATE = """
 </html>
 """
 
-# Dedicated Direct Movies & Anime Portal Template
+# Dedicated Direct Movies & Anime Portal Template (100% Allowed Embed Engine)
 MOVIE_PORTAL_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movies & Anime Direct Stream</title>
+    <title>Movies & Anime Portal</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
-        .header-bar { height: 50px; background: #111; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #222; }
-        .header-bar a { color: #ff0055; text-decoration: none; font-weight: bold; font-size: 16px; }
-        iframe { width: 100%; height: calc(100vh - 50px); border: none; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #0d0d11; color: #fff; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
+        .header { width: 100%; max-width: 900px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header a { color: #ff0055; text-decoration: none; font-weight: bold; font-size: 16px; }
+        .card-box { width: 100%; max-width: 900px; background: rgba(20,20,30,0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 30px; text-align: center; box-sizing: border-box; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
+        h1 { background: linear-gradient(135deg, #ff0055, #ff5500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; font-size: 32px; font-weight: 800; }
+        .search-row { display: flex; gap: 10px; margin-bottom: 20px; }
+        input[type="text"] { flex: 1; padding: 14px 18px; font-size: 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; outline: none; }
+        input[type="text"]:focus { border-color: #ff0055; }
+        button { padding: 14px 24px; background: linear-gradient(135deg, #ff0055, #ff5500); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        button:hover { opacity: 0.9; }
+        .player-frame { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); margin-top: 15px; box-shadow: 0 10px 30px rgba(255,0,85,0.25); }
+        iframe { width: 100%; height: 100%; border: none; }
+        .quick-tags { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px; }
+        .tag { background: rgba(255,255,255,0.08); padding: 8px 16px; border-radius: 20px; font-size: 14px; color: #ddd; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); transition: 0.2s; }
+        .tag:hover { background: #ff0055; color: white; border-color: #ff0055; }
     </style>
 </head>
 <body>
-    <div class="header-bar">
+    <div class="header">
         <a href="/">⬅️ Back to Main Proxy</a>
-        <span style="color:#aaa; font-size:14px;">Direct Movies & Anime Portal</span>
+        <span style="color:#aaa; font-size:14px;">HD Movie & Anime Stream Engine</span>
     </div>
-    <iframe src="https://vidsrc.icu" allowfullscreen></iframe>
+
+    <div class="card-box">
+        <h1>🎬 HD Movie & Anime Stream</h1>
+        <p style="color:#bbb; font-size:14px; margin-bottom:20px;">Search any Movie, TV Show, or Anime title below to load the HD player:</p>
+        
+        <form class="search-row" onsubmit="event.preventDefault(); searchAndPlay();">
+            <input type="text" id="movieSearch" placeholder="Type a Movie or Anime (e.g. Naruto, Avatar, Spider-Man)..." required />
+            <button type="submit">Play Stream</button>
+        </form>
+
+        <div class="quick-tags">
+            <span class="tag" onclick="loadByTmdb('19995')">🌌 Avatar</span>
+            <span class="tag" onclick="loadByTmdb('299536')">🎬 Avengers: Endgame</span>
+            <span class="tag" onclick="loadByTmdb('372058')">⚔️ Your Name (Anime)</span>
+            <span class="tag" onclick="loadByTmdb('31910', true)">🍃 Naruto</span>
+            <span class="tag" onclick="loadByTmdb('1429', true)">⚔️ Attack on Titan</span>
+            <span class="tag" onclick="loadByTmdb('634649')">🕷️ Spider-Man: No Way Home</span>
+        </div>
+
+        <div class="player-frame">
+            <iframe id="videoPlayer" src="https://vidsrc.cc/v2/embed/movie/19995" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <script>
+        async function searchAndPlay() {
+            const query = document.getElementById('movieSearch').value.trim();
+            if (!query) return;
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=15d2fb6fe02810145405a2682f028b27&query=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                if (data.results && data.results.length > 0) {
+                    const item = data.results[0];
+                    if (item.media_type === 'tv') {
+                        document.getElementById('videoPlayer').src = `https://vidsrc.cc/v2/embed/tv/${item.id}/1/1`;
+                    } else {
+                        document.getElementById('videoPlayer').src = `https://vidsrc.cc/v2/embed/movie/${item.id}`;
+                    }
+                } else {
+                    alert("No title found. Try typing the exact movie or anime name!");
+                }
+            } catch (e) {
+                alert("Search error. Please try again.");
+            }
+        }
+
+        function loadByTmdb(tmdbId, isTv = false) {
+            if (isTv) {
+                document.getElementById('videoPlayer').src = `https://vidsrc.cc/v2/embed/tv/${tmdbId}/1/1`;
+            } else {
+                document.getElementById('videoPlayer').src = `https://vidsrc.cc/v2/embed/movie/${tmdbId}`;
+            }
+        }
+    </script>
 </body>
 </html>
 """
@@ -318,7 +382,7 @@ def index():
 
 @app.route("/movies")
 def movies():
-    """Opens the Direct Movies & Anime Site Portal!"""
+    """Direct Movies & Anime Streaming Portal"""
     return render_template_string(MOVIE_PORTAL_TEMPLATE)
 
 
