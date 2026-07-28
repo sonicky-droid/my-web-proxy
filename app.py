@@ -6,7 +6,7 @@ from flask import Flask, Response, render_template_string, request
 
 app = Flask(__name__)
 
-# Main HTML Page Template with Background Image Slideshow Engine & Glassmorphism UI
+# Main HTML Page Template with 6-Photo Background Slideshow Engine & Glassmorphism UI
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -253,10 +253,14 @@ HTML_TEMPLATE = """
     </div>
 
     <script>
-        // YOUR GALLERY SLIDESHOW IMAGES (PASTE MORE DIRECT LINKS HERE IF YOU HAVE THEM):
+        // FULL 6-PHOTO GALLERY SLIDESHOW:
         const bgImages = [
             'https://i.postimg.cc/jw4cM2Sx/1.jpg',
-            'https://i.postimg.cc/kGB59Kvz/background-jpg.jpg'
+            'https://i.postimg.cc/xCWZTbrX/2.jpg',
+            'https://i.postimg.cc/Y9JPqmc4/3.jpg',
+            'https://i.postimg.cc/vBpKH6Rx/4.jpg',
+            'https://i.postimg.cc/zB9QXRmV/5.jpg',
+            'https://i.postimg.cc/PxB7r8Gt/6.jpg'
         ];
 
         let currentIndex = 0;
@@ -268,7 +272,7 @@ HTML_TEMPLATE = """
         }
 
         updateSlideshow();
-        // Switch picture every 5 seconds (5000 milliseconds)
+        // Automatically switch photo every 5 seconds (5000ms)
         setInterval(updateSlideshow, 5000);
     </script>
 </body>
