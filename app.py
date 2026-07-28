@@ -6,14 +6,16 @@ from flask import Flask, Response, render_template_string, request
 
 app = Flask(__name__)
 
-# Main HTML Page Template with 6-Photo Background Slideshow Engine & Glassmorphism UI
+TMDB_API_KEY = "15d2fb6fe02810145405a2682f028b27"  # Public Movie & Anime API Key
+
+# Main HTML Page Template with Background Image Slideshow Engine & Glassmorphism UI
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web & YouTube Proxy</title>
+    <title>Web, YouTube, Movies & Anime Proxy</title>
     <style>
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -31,10 +33,7 @@ HTML_TEMPLATE = """
         /* Fullscreen Slideshow Background */
         #bg-slideshow {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: -1;
             background-size: cover;
             background-position: center;
@@ -45,18 +44,15 @@ HTML_TEMPLATE = """
         #bg-slideshow::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(rgba(10, 10, 18, 0.75), rgba(10, 10, 18, 0.85));
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(10, 10, 18, 0.78), rgba(10, 10, 18, 0.88));
         }
 
         .container {
             width: 100%;
-            max-width: 850px;
+            max-width: 900px;
             text-align: center;
-            background: rgba(18, 18, 28, 0.75);
+            background: rgba(18, 18, 28, 0.78);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.12);
@@ -77,17 +73,9 @@ HTML_TEMPLATE = """
             letter-spacing: -0.5px;
         }
 
-        p {
-            color: #d0d0e0;
-            margin-bottom: 30px;
-            font-size: 15px;
-        }
+        p { color: #d0d0e0; margin-bottom: 25px; font-size: 15px; }
 
-        .input-group {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 25px;
-        }
+        .input-group { display: flex; gap: 12px; margin-bottom: 20px; }
 
         input[type="text"] {
             flex: 1;
@@ -108,7 +96,7 @@ HTML_TEMPLATE = """
         }
 
         button {
-            padding: 16px 30px;
+            padding: 16px 28px;
             font-size: 16px;
             background: linear-gradient(135deg, #ff0055, #ff5500);
             color: white;
@@ -126,23 +114,16 @@ HTML_TEMPLATE = """
             background: linear-gradient(135deg, #ff1a66, #ff661a);
         }
 
-        .nav-links {
-            margin-bottom: 25px;
-        }
-
+        .nav-links { margin-bottom: 25px; }
         .nav-links a {
             color: #99bbff;
             text-decoration: none;
-            margin: 0 12px;
+            margin: 0 10px;
             font-size: 15px;
             font-weight: 600;
             transition: color 0.2s;
         }
-
-        .nav-links a:hover {
-            color: #ff0055;
-            text-shadow: 0 0 8px rgba(255, 0, 85, 0.6);
-        }
+        .nav-links a:hover { color: #ff0055; text-shadow: 0 0 8px rgba(255, 0, 85, 0.6); }
 
         .player-container {
             width: 100%;
@@ -155,15 +136,11 @@ HTML_TEMPLATE = """
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
+        iframe { width: 100%; height: 100%; border: none; }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 20px;
             text-align: left;
             margin-top: 25px;
@@ -189,60 +166,61 @@ HTML_TEMPLATE = """
 
         .card img {
             width: 100%;
-            aspect-ratio: 16 / 9;
+            aspect-ratio: 2 / 3;
             object-fit: cover;
             background: #000;
         }
 
-        .card-body {
-            padding: 14px;
-        }
-
-        .card-title {
-            font-size: 14px;
-            font-weight: 600;
-            line-height: 1.4;
-            max-height: 2.8em;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
+        .card-body { padding: 12px; }
+        .card-title { font-size: 14px; font-weight: 600; line-height: 1.3; }
+        .card-type { font-size: 12px; color: #ff0055; margin-top: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div id="bg-slideshow"></div>
 
     <div class="container">
-        <h1>Web & YouTube Proxy</h1>
-        <p>Browse websites, search YouTube videos, and stream full ad-free videos!</p>
+        <h1>Web, YouTube, Movies & Anime</h1>
+        <p>Search websites, YouTube videos, or type any <b>Movie / Anime title</b> to stream!</p>
         
         <form class="input-group" action="/proxy" method="GET">
-            <input type="text" name="url" placeholder="Search YouTube, type youtube.com, or enter a website..." value="{{ last_query }}" required />
-            <button type="submit">Search / Go</button>
+            <input type="text" name="url" placeholder="Type a website, YouTube link, or Movie/Anime name (e.g. Naruto, Avatar)..." value="{{ last_query }}" required />
+            <button type="submit">Search / Stream</button>
         </form>
 
         <div class="nav-links">
-            <a href="/proxy?url=youtube.com">▶️ YouTube Portal</a> | 
+            <a href="/proxy?url=youtube.com">▶️ YouTube</a> | 
+            <a href="/proxy?url=movies">🎬 Trending Movies & Anime</a> | 
             <a href="/proxy?url=wikipedia.org">🌐 Wikipedia</a>
         </div>
 
-        {% if video_id %}
+        {% if embed_url %}
         <div class="player-container">
-            <iframe 
-                src="https://www.youtube-nocookie.com/embed/{{ video_id }}?autoplay=1&rel=0&modestbranding=1" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen>
-            </iframe>
+            <iframe src="{{ embed_url }}" allowfullscreen></iframe>
+        </div>
+        {% endif %}
+
+        {% if media_results %}
+        <h2 style="text-align:left; color:#ff0055; margin-top:30px; font-size:20px;">Movies, TV & Anime Results</h2>
+        <div class="grid">
+            {% for item in media_results %}
+            <a class="card" href="/watch-media?id={{ item.id }}&type={{ item.media_type }}">
+                <img src="{{ item.poster }}" alt="poster" loading="lazy" />
+                <div class="card-body">
+                    <div class="card-title">{{ item.title }}</div>
+                    <div class="card-type">{{ item.media_type | upper }} ({{ item.year }})</div>
+                </div>
+            </a>
+            {% endfor %}
         </div>
         {% endif %}
 
         {% if yt_results %}
         <h2 style="text-align:left; color:#ff0055; margin-top:30px; font-size:20px;">YouTube Videos</h2>
-        <div class="grid">
+        <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));">
             {% for vid in yt_results %}
             <a class="card" href="/proxy?url=https://www.youtube.com/watch?v={{ vid.id }}">
-                <img src="https://i.ytimg.com/vi/{{ vid.id }}/hqdefault.jpg" alt="thumbnail" loading="lazy" />
+                <img src="https://i.ytimg.com/vi/{{ vid.id }}/hqdefault.jpg" alt="thumbnail" loading="lazy" style="aspect-ratio: 16/9;" />
                 <div class="card-body">
                     <div class="card-title">{{ vid.title }}</div>
                 </div>
@@ -253,7 +231,6 @@ HTML_TEMPLATE = """
     </div>
 
     <script>
-        // FULL 6-PHOTO GALLERY SLIDESHOW:
         const bgImages = [
             'https://i.postimg.cc/jw4cM2Sx/1.jpg',
             'https://i.postimg.cc/xCWZTbrX/2.jpg',
@@ -272,7 +249,6 @@ HTML_TEMPLATE = """
         }
 
         updateSlideshow();
-        // Automatically switch photo every 5 seconds (5000ms)
         setInterval(updateSlideshow, 5000);
     </script>
 </body>
@@ -292,6 +268,70 @@ def extract_youtube_id(url_or_id):
     ):
         return url_or_id.strip()
     return None
+
+
+def search_media(query):
+    """Searches TMDB for Movies, TV Shows, and Anime"""
+    try:
+        url = f"https://api.themoviedb.org/3/search/multi?api_key={TMDB_API_KEY}&query={urllib.parse.quote(query)}&include_adult=false"
+        resp = requests.get(url, timeout=8).json()
+        results = []
+        for item in resp.get("results", [])[:12]:
+            media_type = item.get("media_type")
+            if media_type in ["movie", "tv"]:
+                title = item.get("title") or item.get("name")
+                poster_path = item.get("poster_path")
+                release_date = item.get("release_date") or item.get(
+                    "first_air_date", ""
+                )
+                year = release_date[:4] if release_date else "N/A"
+
+                if poster_path and title:
+                    poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}"
+                    results.append(
+                        {
+                            "id": item["id"],
+                            "title": title,
+                            "media_type": media_type,
+                            "poster": poster_url,
+                            "year": year,
+                        }
+                    )
+        return results
+    except Exception:
+        return []
+
+
+def get_trending_movies():
+    """Gets trending movies and anime"""
+    try:
+        url = f"https://api.themoviedb.org/3/trending/all/day?api_key={TMDB_API_KEY}"
+        resp = requests.get(url, timeout=8).json()
+        results = []
+        for item in resp.get("results", [])[:12]:
+            media_type = item.get("media_type")
+            if media_type in ["movie", "tv"]:
+                title = item.get("title") or item.get("name")
+                poster_path = item.get("poster_path")
+                release_date = item.get("release_date") or item.get(
+                    "first_air_date", ""
+                )
+                year = release_date[:4] if release_date else "N/A"
+
+                if poster_path and title:
+                    poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}"
+                    results.append(
+                        {
+                            "id": item["id"],
+                            "title": title,
+                            "media_type": media_type,
+                            "poster": poster_url,
+                            "year": year,
+                        }
+                    )
+        return results
+    except Exception:
+        return []
 
 
 def search_youtube(query):
@@ -328,7 +368,30 @@ def search_youtube(query):
 @app.route("/")
 def index():
     return render_template_string(
-        HTML_TEMPLATE, video_id=None, yt_results=None, last_query=""
+        HTML_TEMPLATE,
+        embed_url=None,
+        yt_results=None,
+        media_results=None,
+        last_query="",
+    )
+
+
+@app.route("/watch-media")
+def watch_media():
+    media_id = request.args.get("id")
+    media_type = request.args.get("type", "movie")
+
+    if media_type == "tv":
+        embed_url = f"https://vidsrc.cc/v2/embed/tv/{media_id}/1/1"
+    else:
+        embed_url = f"https://vidsrc.cc/v2/embed/movie/{media_id}"
+
+    return render_template_string(
+        HTML_TEMPLATE,
+        embed_url=embed_url,
+        yt_results=None,
+        media_results=None,
+        last_query="",
     )
 
 
@@ -339,6 +402,24 @@ def proxy():
     if not user_input:
         return "Search query or URL is missing.", 400
 
+    # 1. Movies & Anime Tab
+    if user_input.lower() in [
+        "movies",
+        "movie",
+        "anime",
+        "shows",
+        "trending movies",
+    ]:
+        trending = get_trending_movies()
+        return render_template_string(
+            HTML_TEMPLATE,
+            embed_url=None,
+            yt_results=None,
+            media_results=trending,
+            last_query="movies",
+        )
+
+    # 2. YouTube Portal
     if user_input.lower() in [
         "youtube",
         "youtube.com",
@@ -350,20 +431,40 @@ def proxy():
         results = search_youtube("trending videos")
         return render_template_string(
             HTML_TEMPLATE,
-            video_id=None,
+            embed_url=None,
             yt_results=results,
+            media_results=None,
             last_query="youtube.com",
         )
 
+    # 3. Direct YouTube Video Links
     yt_id = extract_youtube_id(user_input)
     if yt_id:
+        embed_url = f"https://www.youtube-nocookie.com/embed/{yt_id}?autoplay=1&rel=0&modestbranding=1"
         return render_template_string(
-            HTML_TEMPLATE, video_id=yt_id, yt_results=None, last_query=user_input
+            HTML_TEMPLATE,
+            embed_url=embed_url,
+            yt_results=None,
+            media_results=None,
+            last_query=user_input,
         )
 
+    # 4. Check Movies & Anime Search
+    media_hits = search_media(user_input)
+
+    # 5. Check if Direct Website URL vs Search Term
     is_url = user_input.startswith(("http://", "https://")) or (
         "." in user_input and " " not in user_input
     )
+
+    if not is_url and media_hits:
+        return render_template_string(
+            HTML_TEMPLATE,
+            embed_url=None,
+            yt_results=None,
+            media_results=media_hits,
+            last_query=user_input,
+        )
 
     if is_url:
         if not user_input.startswith(("http://", "https://")):
@@ -375,8 +476,9 @@ def proxy():
         if results:
             return render_template_string(
                 HTML_TEMPLATE,
-                video_id=None,
+                embed_url=None,
                 yt_results=results,
+                media_results=None,
                 last_query=user_input,
             )
         else:
