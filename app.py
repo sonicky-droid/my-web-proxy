@@ -246,7 +246,7 @@ SLIDESHOW_SCRIPT = """
     </script>
 """
 
-# Home Page Template with KissKH.do and Poki Quick Launch
+# Home Page Template with KissKH, Poki, CrazyGames, and Gogoanime Quick Launch
 HOME_TEMPLATE = (
     """
 <!DOCTYPE html>
@@ -276,6 +276,8 @@ HOME_TEMPLATE = (
         <div style="margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
             <a class="site-btn" href="/proxy?url=https://kisskh.do" style="text-decoration:none;">💋 KissKH.do</a>
             <a class="site-btn" href="/proxy?url=https://poki.com" style="text-decoration:none;">🎮 Poki.com</a>
+            <a class="site-btn" href="/proxy?url=https://www.crazygames.com" style="text-decoration:none;">🕹️ CrazyGames</a>
+            <a class="site-btn" href="/proxy?url=https://gogoanime.or.at" style="text-decoration:none;">⛩️ Gogoanime</a>
         </div>
 
         <form class="input-group" action="/proxy" method="GET">
@@ -286,8 +288,10 @@ HOME_TEMPLATE = (
         <div style="margin-top:25px; text-align:left;">
             <h3 style="color:#ff0055;">✨ Quick Access Portals:</h3>
             <ul style="color:#ccc; line-height:1.8;">
-                <li><b>💋 KissKH.do:</b> Direct launch portal for KissKH dramas, anime & movies.</li>
-                <li><b>🎮 Poki.com:</b> Direct access to Poki games library.</li>
+                <li><b>💋 KissKH.do:</b> Asian dramas, anime & movies.</li>
+                <li><b>🎮 Poki.com:</b> Direct Poki games library.</li>
+                <li><b>🕹️ CrazyGames.com:</b> CrazyGames unblocked games library.</li>
+                <li><b>⛩️ Gogoanime:</b> Direct Gogoanime stream portal (gogoanime.or.at).</li>
                 <li><b>⛩️ Anime Center:</b> Native HD stream player for Dragon Ball, Naruto, One Piece, etc.</li>
             </ul>
         </div>
