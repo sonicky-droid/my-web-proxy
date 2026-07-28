@@ -1,5 +1,6 @@
 import os
 import re
+import urllib.parse
 import requests
 from flask import Flask, Response, render_template_string, request
 
@@ -11,7 +12,7 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web & YouTube Proxy</title>
+    <title>Search & Web Proxy</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
         .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 800px; }
@@ -27,11 +28,11 @@ HTML_TEMPLATE = """
 </head>
 <body>
     <div class="container">
-        <h1>Web & YouTube Proxy</h1>
-        <p>Paste any <b>Website address</b> (e.g. <i>wikipedia.org</i>) or a <b>YouTube video link</b> below:</p>
+        <h1>Search & Web Proxy</h1>
+        <p>Type a <b>Search Query</b> (e.g. <i>funny cats</i>), a <b>Website</b> (<i>wikipedia.org</i>), or a <b>YouTube Link</b>:</p>
         <form class="input-group" action="/proxy" method="GET">
-            <input type="text" name="url" placeholder="https://example.com or YouTube Video Link" required />
-            <button type="submit">Browse</button>
+            <input type="text" name="url" placeholder="Search anything or type a website address..." required />
+            <button type="submit">Search / Go</button>
         </form>
 
         {% if video_id %}
@@ -51,12 +52,16 @@ HTML_TEMPLATE = """
 
 
 def extract_youtube_id(url_or_id):
-    """Detects if input is a YouTube URL and extracts the video ID"""
+    """Detects YouTube links"""
     pattern = r"(?:v=|\/|youtu\.be\/|shorts\/)([a-zA-Z0-9_-]{11})"
     match = re.search(pattern, url_or_id)
     if match:
         return match.group(1)
-    elif len(url_or_id.strip()) == 11 and " " not in url_or_id:
+    elif (
+        len(url_or_id.strip()) == 11
+        and " " not in url_or_id
+        and not url_or_id.startswith("http")
+    ):
         return url_or_id.strip()
     return None
 
@@ -68,21 +73,30 @@ def index():
 
 @app.route("/proxy", methods=["GET"])
 def proxy():
-    target_url = request.args.get("url", "").strip()
+    user_input = request.args.get("url", "").strip()
 
-    if not target_url:
-        return "URL parameter is missing.", 400
+    if not user_input:
+        return "Search query or URL is missing.", 400
 
-    # 1. If it's a YouTube link, load the unblocked video player
-    yt_id = extract_youtube_id(target_url)
+    # 1. Handle YouTube Video Links
+    yt_id = extract_youtube_id(user_input)
     if yt_id:
         return render_template_string(HTML_TEMPLATE, video_id=yt_id)
 
-    # 2. Otherwise, treat as a standard web proxy request
-    if not target_url.startswith("http://") and not target_url.startswith(
-        "https://"
-    ):
-        target_url = "https://" + target_url
+    # 2. Check if input is a direct URL vs a Search Term
+    is_url = user_input.startswith(("http://", "https://")) or (
+        "." in user_input and " " not in user_input
+    )
+
+    if is_url:
+        if not user_input.startswith(("http://", "https://")):
+            target_url = "https://" + user_input
+        else:
+            target_url = user_input
+    else:
+        # If it's search text, route through DuckDuckGo Search Engine
+        encoded_query = urllib.parse.quote(user_input)
+        target_url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
 
     try:
         headers = {
