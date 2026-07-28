@@ -6,69 +6,67 @@ from flask import Flask, Response, render_template_string, request
 
 app = Flask(__name__)
 
-TMDB_API_KEY = "15d2fb6fe02810145405a2682f028b27"  # Public TMDB Search Key
-
-# List of 100% Working Unblocked HTML5 Games
+# List of 100% Working English HTML5 Games
 GAMES_DATABASE = [
     {
         "id": "subway-surfers",
         "title": "Subway Surfers",
         "category": "Runner",
         "poster": "https://img.gamepix.com/games/subway-surfers/cover/subway-surfers.png?width=300",
-        "url": "https://k12.pages.dev/games/subway-surfers/",
+        "url": "https://subwaysurfersgame.github.io/",
     },
     {
         "id": "moto-x3m",
         "title": "Moto X3M",
         "category": "Racing",
         "poster": "https://img.gamepix.com/games/moto-x3m/cover/moto-x3m.png?width=300",
-        "url": "https://k12.pages.dev/games/moto-x3m/",
+        "url": "https://moto-x3m.github.io/",
     },
     {
         "id": "drive-mad",
         "title": "Drive Mad",
         "category": "Driving",
         "poster": "https://img.gamepix.com/games/drive-mad/cover/drive-mad.png?width=300",
-        "url": "https://k12.pages.dev/games/drive-mad/",
+        "url": "https://drive-mad.github.io/",
     },
     {
         "id": "basketball-stars",
         "title": "Basketball Stars",
         "category": "Sports",
         "poster": "https://img.gamepix.com/games/basketball-legends-2020/cover/basketball-legends-2020.png?width=300",
-        "url": "https://k12.pages.dev/games/basketball-stars/",
+        "url": "https://basketball-stars.github.io/",
     },
     {
         "id": "stickman-hook",
         "title": "Stickman Hook",
         "category": "Action",
         "poster": "https://img.gamepix.com/games/stickman-hook/cover/stickman-hook.png?width=300",
-        "url": "https://k12.pages.dev/games/stickman-hook/",
+        "url": "https://stickman-hook.github.io/",
     },
     {
         "id": "temple-run-2",
         "title": "Temple Run 2",
         "category": "Runner",
         "poster": "https://img.gamepix.com/games/tomb-runner/cover/tomb-runner.png?width=300",
-        "url": "https://k12.pages.dev/games/temple-run-2/",
+        "url": "https://ubg98.github.io/temple-run-2/",
     },
     {
-        "id": "geometry-jump",
+        "id": "geometry-dash",
         "title": "Geometry Dash",
         "category": "Arcade",
         "poster": "https://img.gamepix.com/games/geometry-jump/cover/geometry-jump.png?width=300",
-        "url": "https://k12.pages.dev/games/geometry-dash/",
+        "url": "https://geometry-dash.github.io/",
     },
     {
         "id": "tunnel-rush",
         "title": "Tunnel Rush",
         "category": "Skill",
         "poster": "https://img.gamepix.com/games/tunnel-rush/cover/tunnel-rush.png?width=300",
-        "url": "https://k12.pages.dev/games/tunnel-rush/",
+        "url": "https://tunnel-rush.github.io/",
     },
 ]
 
-# HTML Page Template
+# Main HTML Page Template
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -108,14 +106,14 @@ HTML_TEMPLATE = """
 
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 950px;
             text-align: center;
             background: rgba(18, 18, 28, 0.78);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 20px;
-            padding: 35px;
+            padding: 30px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 0, 85, 0.2);
             margin-top: auto;
             margin-bottom: auto;
@@ -153,7 +151,7 @@ HTML_TEMPLATE = """
             background: rgba(0, 0, 0, 0.7);
         }
 
-        button, .server-btn {
+        button, .site-btn {
             padding: 12px 20px;
             font-size: 14px;
             background: linear-gradient(135deg, #ff0055, #ff5500);
@@ -166,13 +164,13 @@ HTML_TEMPLATE = """
             box-shadow: 0 4px 15px rgba(255, 0, 85, 0.3);
         }
 
-        button:hover, .server-btn:hover {
+        button:hover, .site-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(255, 0, 85, 0.5);
         }
 
-        .server-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
-        .server-btn:hover { background: #ff0055; }
+        .site-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
+        .site-btn:hover { background: #ff0055; }
 
         .nav-links { margin-bottom: 25px; }
         .nav-links a {
@@ -187,7 +185,7 @@ HTML_TEMPLATE = """
 
         .player-container {
             width: 100%;
-            aspect-ratio: 16 / 9;
+            height: 75vh;
             background: #000;
             border-radius: 14px;
             overflow: hidden;
@@ -241,22 +239,22 @@ HTML_TEMPLATE = """
 
     <div class="container">
         <h1>Web, Games, YouTube & Anime</h1>
-        <p>Browse websites, stream anime/movies, or play <b>Unblocked HTML5 Games</b>!</p>
+        <p>Browse websites, stream anime/movies from famous sites, or play <b>Unblocked Games</b>!</p>
         
         <form class="input-group" action="/proxy" method="GET">
-            <input type="text" name="url" placeholder="Search Movies/Anime, Games, YouTube, or type a website address..." value="{{ last_query }}" required />
-            <button type="submit" style="padding: 16px 28px; font-size:16px;">Search / Play</button>
+            <input type="text" name="url" placeholder="Search YouTube, Games, or type a website address..." value="{{ last_query }}" required />
+            <button type="submit" style="padding: 16px 28px; font-size:16px;">Search / Go</button>
         </form>
 
         <div class="nav-links">
-            <a href="/proxy?url=anime">⛩️ Movies & Anime</a> | 
+            <a href="/proxy?url=anime" style="color:#ff0055; font-size:16px;">⛩️ Famous Anime & Movie Sites</a> | 
             <a href="/proxy?url=games">🎮 Unblocked Games</a> | 
             <a href="/proxy?url=youtube.com">▶️ YouTube</a> | 
             <a href="/proxy?url=wikipedia.org">🌐 Wikipedia</a>
         </div>
 
         {% if video_id %}
-        <div class="player-container">
+        <div class="player-container" style="height:auto; aspect-ratio: 16/9;">
             <iframe 
                 src="https://www.youtube-nocookie.com/embed/{{ video_id }}?autoplay=1&rel=0&modestbranding=1" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -267,7 +265,7 @@ HTML_TEMPLATE = """
 
         {% if game_url %}
         <h3 style="color:#ff0055; margin-top:20px;">Playing Game (Full Screen)</h3>
-        <div class="player-container" style="aspect-ratio: 16/10;">
+        <div class="player-container" style="height:auto; aspect-ratio: 16/10;">
             <iframe 
                 src="{{ game_url }}" 
                 referrerpolicy="no-referrer"
@@ -277,51 +275,37 @@ HTML_TEMPLATE = """
         </div>
         {% endif %}
 
-        {% if media_id %}
-        <h3 style="color:#ff0055; margin-top:20px;">Ad-Free Stream Player</h3>
-        <p style="font-size:13px; color:#aaa; margin-bottom:10px;">If stream fails, click a backup server below:</p>
+        {% if show_anime_hub %}
+        <h3 style="color:#ff0055; margin-top:15px;">Ad-Free Anime & Movies Hub</h3>
+        <p style="font-size:13px; color:#aaa; margin-bottom:12px;">Click a famous site below to load it with <b>100% POP-UP ADS BLOCKED</b>:</p>
         
         <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:15px;">
-            <button class="server-btn" onclick="switchServer('https://embed.su/embed/{{ media_type }}/{{ media_id }}{% if media_type == \"tv\" %}/1/1{% endif %}')">Server 1 (Embed.su)</button>
-            <button class="server-btn" onclick="switchServer('https://autoembed.co/{{ media_type }}/tmdb/{{ media_id }}{% if media_type == \"tv\" %}-1-1{% endif %}')">Server 2 (AutoEmbed)</button>
-            <button class="server-btn" onclick="switchServer('https://vidsrc.cc/v2/embed/{{ media_type }}/{{ media_id }}{% if media_type == \"tv\" %}/1/1{% endif %}')">Server 3 (VidSrc CC)</button>
-            <button class="server-btn" onclick="switchServer('https://multiembed.mov/directstream.php?video_id={{ media_id }}')">Server 4 (MultiEmbed)</button>
+            <button class="site-btn" onclick="loadSite('https://animedex.live')">🔥 Site 1 (HiAnime / AnimeDex)</button>
+            <button class="site-btn" onclick="loadSite('https://anitaku.pe')">⛩️ Site 2 (GogoAnime)</button>
+            <button class="site-btn" onclick="loadSite('https://vidsrc.me')">🎬 Site 3 (VidSrc Movies & TV)</button>
+            <button class="site-btn" onclick="loadSite('https://movie-web.app')">🍿 Site 4 (Movie-Web HD)</button>
         </div>
 
         <div class="player-container">
             <iframe 
-                id="streamPlayer"
-                src="https://embed.su/embed/{{ media_type }}/{{ media_id }}{% if media_type == 'tv' %}/1/1{% endif %}" 
+                id="animeIframe"
+                src="https://animedex.live" 
                 referrerpolicy="no-referrer"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
                 allow="autoplay; encrypted-media; fullscreen" 
                 allowfullscreen>
             </iframe>
         </div>
 
         <script>
-            function switchServer(newUrl) {
-                document.getElementById('streamPlayer').src = newUrl;
+            function loadSite(siteUrl) {
+                document.getElementById('animeIframe').src = siteUrl;
             }
         </script>
         {% endif %}
 
-        {% if media_results %}
-        <h2 style="text-align:left; color:#ff0055; margin-top:30px; font-size:20px;">Movies & Anime Results</h2>
-        <div class="grid">
-            {% for item in media_results %}
-            <a class="card" href="/watch-media?id={{ item.id }}&type={{ item.media_type }}&title={{ item.title | urlencode }}">
-                <img src="{{ item.poster }}" alt="poster" loading="lazy" />
-                <div class="card-body">
-                    <div class="card-title">{{ item.title }}</div>
-                    <div class="card-sub">{{ item.media_type | upper }} ({{ item.year }})</div>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-        {% endif %}
-
         {% if games_list %}
-        <h2 style="text-align:left; color:#ff0055; margin-top:30px; font-size:20px;">🎮 Unblocked HTML5 Games</h2>
+        <h2 style="text-align:left; color:#ff0055; margin-top:30px; font-size:20px;">🎮 Unblocked HTML5 Games (English)</h2>
         <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
             {% for game in games_list %}
             <a class="card" href="/play-game?id={{ game.id }}">
@@ -390,38 +374,6 @@ def extract_youtube_id(url_or_id):
     return None
 
 
-def search_tmdb_media(query):
-    """Searches TMDB for Movies, TV Shows, and Anime with guaranteed working IDs"""
-    try:
-        url = f"https://api.themoviedb.org/3/search/multi?api_key={TMDB_API_KEY}&query={urllib.parse.quote(query)}&include_adult=false"
-        resp = requests.get(url, timeout=8).json()
-        results = []
-        for item in resp.get("results", [])[:12]:
-            media_type = item.get("media_type")
-            if media_type in ["movie", "tv"]:
-                title = item.get("title") or item.get("name")
-                poster_path = item.get("poster_path")
-                release_date = item.get("release_date") or item.get(
-                    "first_air_date", ""
-                )
-                year = release_date[:4] if release_date else "N/A"
-
-                if poster_path and title:
-                    poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}"
-                    results.append(
-                        {
-                            "id": item["id"],
-                            "title": title,
-                            "media_type": media_type,
-                            "poster": poster_url,
-                            "year": year,
-                        }
-                    )
-        return results
-    except Exception:
-        return []
-
-
 def search_youtube(query):
     try:
         search_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(query)}"
@@ -458,11 +410,9 @@ def index():
     return render_template_string(
         HTML_TEMPLATE,
         video_id=None,
-        media_id=None,
-        media_type=None,
+        show_anime_hub=False,
         game_url=None,
         yt_results=None,
-        media_results=None,
         games_list=GAMES_DATABASE,
         last_query="",
     )
@@ -478,32 +428,11 @@ def play_game():
     return render_template_string(
         HTML_TEMPLATE,
         video_id=None,
-        media_id=None,
-        media_type=None,
+        show_anime_hub=False,
         game_url=target_game["url"],
         yt_results=None,
-        media_results=None,
         games_list=GAMES_DATABASE,
         last_query=target_game["title"],
-    )
-
-
-@app.route("/watch-media")
-def watch_media():
-    media_id = request.args.get("id")
-    media_type = request.args.get("type", "movie")
-    media_title = request.args.get("title", "movie")
-
-    return render_template_string(
-        HTML_TEMPLATE,
-        video_id=None,
-        media_id=media_id,
-        media_type=media_type,
-        game_url=None,
-        yt_results=None,
-        media_results=None,
-        games_list=None,
-        last_query=media_title,
     )
 
 
@@ -514,35 +443,31 @@ def proxy():
     if not user_input:
         return "Search query or URL is missing.", 400
 
+    # 1. Unblocked Games Tab
     if user_input.lower() in ["games", "game", "poki", "arcade", "unblocked games"]:
         return render_template_string(
             HTML_TEMPLATE,
             video_id=None,
-            media_id=None,
-            media_type=None,
+            show_anime_hub=False,
             game_url=None,
             yt_results=None,
-            media_results=None,
             games_list=GAMES_DATABASE,
             last_query="games",
         )
 
-    if user_input.lower() in ["anime", "movies", "shows", "dragon ball"]:
-        results = search_tmdb_media(
-            user_input if user_input != "anime" else "Dragon Ball"
-        )
+    # 2. Famous Anime & Movies Hub
+    if user_input.lower() in ["anime", "movies", "shows", "dragon ball", "movie"]:
         return render_template_string(
             HTML_TEMPLATE,
             video_id=None,
-            media_id=None,
-            media_type=None,
+            show_anime_hub=True,
             game_url=None,
             yt_results=None,
-            media_results=results,
             games_list=None,
-            last_query=user_input,
+            last_query="anime",
         )
 
+    # 3. YouTube Portal
     if user_input.lower() in [
         "youtube",
         "youtube.com",
@@ -555,47 +480,29 @@ def proxy():
         return render_template_string(
             HTML_TEMPLATE,
             video_id=None,
-            media_id=None,
-            media_type=None,
+            show_anime_hub=False,
             game_url=None,
             yt_results=results,
-            media_results=None,
             games_list=None,
             last_query="youtube.com",
         )
 
+    # 4. Direct YouTube Video Links
     yt_id = extract_youtube_id(user_input)
     if yt_id:
         return render_template_string(
             HTML_TEMPLATE,
             video_id=yt_id,
-            media_id=None,
-            media_type=None,
+            show_anime_hub=False,
             game_url=None,
             yt_results=None,
-            media_results=None,
             games_list=None,
             last_query=user_input,
         )
-
-    media_hits = search_tmdb_media(user_input)
 
     is_url = user_input.startswith(("http://", "https://")) or (
         "." in user_input and " " not in user_input
     )
-
-    if not is_url and media_hits:
-        return render_template_string(
-            HTML_TEMPLATE,
-            video_id=None,
-            media_id=None,
-            media_type=None,
-            game_url=None,
-            yt_results=None,
-            media_results=media_hits,
-            games_list=None,
-            last_query=user_input,
-        )
 
     if is_url:
         if not user_input.startswith(("http://", "https://")):
@@ -608,11 +515,9 @@ def proxy():
             return render_template_string(
                 HTML_TEMPLATE,
                 video_id=None,
-                media_id=None,
-                media_type=None,
+                show_anime_hub=False,
                 game_url=None,
                 yt_results=results,
-                media_results=None,
                 games_list=None,
                 last_query=user_input,
             )
