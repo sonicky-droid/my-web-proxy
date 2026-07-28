@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 TMDB_API_KEY = "15d2fb6fe02810145405a2682f028b27"  # TMDB API Key
 
-# 100% Working English HTML5 Games (Google Official Content CDN - NO 404s EVER!)
+# 100% Working English HTML5 Games (Google Official Content CDN)
 GAMES_DATABASE = [
     {
         "id": "subway-surfers",
@@ -131,7 +131,7 @@ COMMON_CSS = """
         background: rgba(0, 0, 0, 0.7);
     }
 
-    button, .server-btn {
+    button, .server-btn, .site-btn {
         padding: 12px 20px;
         font-size: 14px;
         background: linear-gradient(135deg, #ff0055, #ff5500);
@@ -144,15 +144,15 @@ COMMON_CSS = """
         box-shadow: 0 4px 15px rgba(255, 0, 85, 0.3);
     }
 
-    button:hover, .server-btn:hover {
+    button:hover, .server-btn:hover, .site-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(255, 0, 85, 0.5);
     }
 
-    .server-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
-    .server-btn:hover { background: #ff0055; }
+    .server-btn, .site-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
+    .server-btn:hover, .site-btn:hover { background: #ff0055; }
 
-    .nav-links { margin-bottom: 25px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    .nav-links { margin-bottom: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
     .nav-links a {
         color: #99bbff;
         text-decoration: none;
@@ -246,7 +246,7 @@ SLIDESHOW_SCRIPT = """
     </script>
 """
 
-# Home Page Template
+# Home Page Template with 9anime, KissKH, and Poki Quick Launch
 HOME_TEMPLATE = (
     """
 <!DOCTYPE html>
@@ -264,13 +264,19 @@ HOME_TEMPLATE = (
 
     <div class="container">
         <h1>Web Proxy & Media Hub</h1>
-        <p>Search using <b>Yandex Search</b>, stream Anime, Movies, YouTube, or play Games!</p>
+        <p>Search using <b>Yandex Search</b>, stream Anime, Movies, YouTube, or launch featured portals!</p>
 
         <div class="nav-links">
-            <a href="/anime">⛩️ Anime Center</a>
+            <a href="/anime" class="active">⛩️ Anime Center</a>
             <a href="/movies">🎬 Movies & TV Shows</a>
             <a href="/games">🎮 Games Arcade</a>
             <a href="/youtube">▶️ YouTube Portal</a>
+        </div>
+
+        <div style="margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <a class="site-btn" href="/proxy?url=https://9animetv.to" style="text-decoration:none;">🌸 9anime</a>
+            <a class="site-btn" href="/proxy?url=https://kisskh.co" style="text-decoration:none;">💋 KissKH.co</a>
+            <a class="site-btn" href="/proxy?url=https://poki.com" style="text-decoration:none;">🎮 Poki.com</a>
         </div>
 
         <form class="input-group" action="/proxy" method="GET">
@@ -279,13 +285,12 @@ HOME_TEMPLATE = (
         </form>
 
         <div style="margin-top:25px; text-align:left;">
-            <h3 style="color:#ff0055;">✨ Dedicated Sections:</h3>
+            <h3 style="color:#ff0055;">✨ Quick Access Portals:</h3>
             <ul style="color:#ccc; line-height:1.8;">
-                <li><b>⛩️ Anime Center:</b> Watch Dragon Ball, Naruto, One Piece, Solo Leveling, Demon Slayer, etc.</li>
-                <li><b>🎬 Movies & TV:</b> Watch Avatar, Avengers, Spider-Man, Inception, Netflix series, etc.</li>
-                <li><b>🎮 Games Arcade:</b> Play Subway Surfers, Moto X3M, Drive Mad in 100% English.</li>
-                <li><b>▶️ YouTube Portal:</b> Search and watch YouTube videos ad-free in HD.</li>
-                <li><b>🔴 Yandex Search:</b> Browse search results powered by Yandex!</li>
+                <li><b>🌸 9anime:</b> Direct launch portal for 9anime.</li>
+                <li><b>💋 KissKH.co:</b> Direct launch portal for Asian dramas, anime & movies.</li>
+                <li><b>🎮 Poki.com:</b> Direct access to Poki games library.</li>
+                <li><b>⛩️ Anime Center:</b> Native HD stream player for Dragon Ball, Naruto, One Piece, etc.</li>
             </ul>
         </div>
     </div>
@@ -804,7 +809,6 @@ def proxy():
         else:
             target_url = user_input
     else:
-        # Route general web search to YANDEX SEARCH ENGINE!
         encoded_query = urllib.parse.quote(user_input)
         target_url = f"https://yandex.com/search/?text={encoded_query}"
 
