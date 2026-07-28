@@ -6,7 +6,7 @@ from flask import Flask, Response, render_template_string, request
 
 app = Flask(__name__)
 
-# Main HTML Page Template
+# Main HTML Page Template with Custom Image Background & Dark Glassmorphism UI
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -15,32 +15,181 @@ HTML_TEMPLATE = """
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web & YouTube Proxy</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f0f0f; color: #fff; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
-        .container { width: 100%; max-width: 900px; text-align: center; }
-        h1 { color: #ff0000; margin-bottom: 10px; font-size: 32px; }
-        p { color: #aaa; margin-bottom: 25px; font-size: 15px; }
-        .input-group { display: flex; gap: 10px; margin-bottom: 25px; }
-        input[type="text"] { flex: 1; padding: 14px; font-size: 16px; border: 1px solid #333; border-radius: 6px; background: #1f1f1f; color: white; outline: none; }
-        input[type="text"]:focus { border-color: #ff0000; }
-        button { padding: 14px 28px; font-size: 16px; background-color: #ff0000; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        button:hover { background-color: #cc0000; }
-        .nav-links { margin-bottom: 25px; }
-        .nav-links a { color: #0088ff; text-decoration: none; margin: 0 10px; font-size: 15px; font-weight: 500; }
-        .nav-links a:hover { text-decoration: underline; }
-        .player-container { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; margin-top: 20px; box-shadow: 0 8px 25px rgba(255,0,0,0.25); }
-        iframe { width: 100%; height: 100%; border: none; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; text-align: left; margin-top: 20px; }
-        .card { background: #181818; border-radius: 8px; overflow: hidden; text-decoration: none; color: white; transition: transform 0.2s, background 0.2s; border: 1px solid #282828; display: block; }
-        .card:hover { transform: translateY(-4px); background: #222; border-color: #ff0000; }
-        .card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: #000; }
-        .card-body { padding: 12px; }
-        .card-title { font-size: 14px; font-weight: bold; line-height: 1.4; max-height: 2.8em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(rgba(10, 10, 18, 0.75), rgba(10, 10, 18, 0.85)), 
+                        url('https://raw.githubusercontent.com/sonicky-droid/my-web-proxy/main/background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            text-align: center;
+            background: rgba(18, 18, 28, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 0, 85, 0.2);
+        }
+
+        h1 {
+            background: linear-gradient(135deg, #ff0055, #ff5500, #ff00cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 38px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        p {
+            color: #d0d0e0;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 16px 20px;
+            font-size: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #ff0055;
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        button {
+            padding: 16px 30px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #ff0055, #ff5500);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 0, 85, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 0, 85, 0.5);
+            background: linear-gradient(135deg, #ff1a66, #ff661a);
+        }
+
+        .nav-links {
+            margin-bottom: 25px;
+        }
+
+        .nav-links a {
+            color: #99bbff;
+            text-decoration: none;
+            margin: 0 12px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: #ff0055;
+            text-shadow: 0 0 8px rgba(255, 0, 85, 0.6);
+        }
+
+        .player-container {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 14px;
+            overflow: hidden;
+            margin-top: 25px;
+            box-shadow: 0 10px 30px rgba(255, 0, 85, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+            text-align: left;
+            margin-top: 25px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: block;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #ff0055;
+            box-shadow: 0 8px 25px rgba(255, 0, 85, 0.3);
+        }
+
+        .card img {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            background: #000;
+        }
+
+        .card-body {
+            padding: 14px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.4;
+            max-height: 2.8em;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Web & YouTube Proxy</h1>
-        <p>Browse websites, search YouTube videos, and watch full ad-free streams!</p>
+        <p>Browse websites, search YouTube videos, and stream full ad-free videos!</p>
         
         <form class="input-group" action="/proxy" method="GET">
             <input type="text" name="url" placeholder="Search YouTube, type youtube.com, or enter a website..." value="{{ last_query }}" required />
@@ -63,7 +212,7 @@ HTML_TEMPLATE = """
         {% endif %}
 
         {% if yt_results %}
-        <h2 style="text-align:left; color:#ff0000; margin-top:30px;">YouTube Video Search Results</h2>
+        <h2 style="text-align:left; color:#ff0055; margin-top:30px; font-size:20px;">YouTube Videos</h2>
         <div class="grid">
             {% for vid in yt_results %}
             <a class="card" href="/proxy?url=https://www.youtube.com/watch?v={{ vid.id }}">
@@ -82,7 +231,6 @@ HTML_TEMPLATE = """
 
 
 def extract_youtube_id(url_or_id):
-    """Detects YouTube video URL or ID"""
     pattern = r"(?:v=|\/|youtu\.be\/|shorts\/)([a-zA-Z0-9_-]{11})"
     match = re.search(pattern, url_or_id)
     if match:
@@ -97,7 +245,6 @@ def extract_youtube_id(url_or_id):
 
 
 def search_youtube(query):
-    """Scrapes YouTube search results for a clean video grid"""
     try:
         search_url = f"https://www.youtube.com/results?search_query={urllib.parse.quote(query)}"
         headers = {
@@ -107,7 +254,6 @@ def search_youtube(query):
         resp = requests.get(search_url, headers=headers, timeout=10)
         html = resp.text
 
-        # Extract video IDs and titles using regex
         video_matches = re.findall(
             r'"videoId":"([a-zA-Z0-9_-]{11})".*?"title":\{"runs":\[\{"text":"([^"]+)"\}',
             html,
@@ -143,7 +289,6 @@ def proxy():
     if not user_input:
         return "Search query or URL is missing.", 400
 
-    # 1. User typed 'youtube.com' or 'youtube'
     if user_input.lower() in [
         "youtube",
         "youtube.com",
@@ -160,14 +305,12 @@ def proxy():
             last_query="youtube.com",
         )
 
-    # 2. User pasted a direct YouTube Video link
     yt_id = extract_youtube_id(user_input)
     if yt_id:
         return render_template_string(
             HTML_TEMPLATE, video_id=yt_id, yt_results=None, last_query=user_input
         )
 
-    # 3. Check if input is a direct Website URL vs Search Term
     is_url = user_input.startswith(("http://", "https://")) or (
         "." in user_input and " " not in user_input
     )
@@ -178,7 +321,6 @@ def proxy():
         else:
             target_url = user_input
     else:
-        # Search YouTube for video queries
         results = search_youtube(user_input)
         if results:
             return render_template_string(
@@ -188,7 +330,6 @@ def proxy():
                 last_query=user_input,
             )
         else:
-            # Fallback to DuckDuckGo search if no YouTube videos found
             encoded_query = urllib.parse.quote(user_input)
             target_url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
 
