@@ -6,63 +6,63 @@ from flask import Flask, Response, render_template_string, request
 
 app = Flask(__name__)
 
-# List of Unblocked HTML5 Games (Poki style)
+# List of 100% Working Unblocked HTML5 Games (GamePix Engine)
 GAMES_DATABASE = [
     {
         "id": "subway-surfers",
         "title": "Subway Surfers",
         "category": "Runner",
-        "poster": "https://img.gamedistribution.com/rvvAS300-512x512.jpeg",
-        "url": "https://html5.gamedistribution.com/rvvAS300/",
+        "poster": "https://img.gamepix.com/games/subway-surfers/cover/subway-surfers.png?width=300",
+        "url": "https://play.gamepix.com/subway-surfers/embed",
     },
     {
         "id": "moto-x3m",
         "title": "Moto X3M",
         "category": "Racing",
-        "poster": "https://img.gamedistribution.com/b2823a233b2848c8a141b714f3c7b64b-512x512.jpeg",
-        "url": "https://html5.gamedistribution.com/b2823a233b2848c8a141b714f3c7b64b/",
+        "poster": "https://img.gamepix.com/games/moto-x3m/cover/moto-x3m.png?width=300",
+        "url": "https://play.gamepix.com/moto-x3m/embed",
     },
     {
         "id": "drive-mad",
         "title": "Drive Mad",
         "category": "Driving",
-        "poster": "https://img.gamedistribution.com/6c42ddf5187d4681958b4f62fae80718-512x512.jpeg",
-        "url": "https://html5.gamedistribution.com/6c42ddf5187d4681958b4f62fae80718/",
+        "poster": "https://img.gamepix.com/games/drive-mad/cover/drive-mad.png?width=300",
+        "url": "https://play.gamepix.com/drive-mad/embed",
     },
     {
-        "id": "basketball-stars",
-        "title": "Basketball Stars",
+        "id": "basketball-legends",
+        "title": "Basketball Legends",
         "category": "Sports",
-        "poster": "https://img.gamedistribution.com/3931665a3964405ea7e31b4097e3a34a-512x512.jpeg",
-        "url": "https://html5.gamedistribution.com/3931665a3964405ea7e31b4097e3a34a/",
+        "poster": "https://img.gamepix.com/games/basketball-legends-2020/cover/basketball-legends-2020.png?width=300",
+        "url": "https://play.gamepix.com/basketball-legends-2020/embed",
     },
     {
         "id": "stickman-hook",
         "title": "Stickman Hook",
         "category": "Action",
-        "poster": "https://img.gamedistribution.com/9be12a023bbf4e3fbcfceefdfd0b6754-512x512.jpeg",
-        "url": "https://html5.gamedistribution.com/9be12a023bbf4e3fbcfceefdfd0b6754/",
+        "poster": "https://img.gamepix.com/games/stickman-hook/cover/stickman-hook.png?width=300",
+        "url": "https://play.gamepix.com/stickman-hook/embed",
     },
     {
-        "id": "temple-run-2",
-        "title": "Temple Run 2",
+        "id": "tomb-runner",
+        "title": "Temple / Tomb Runner",
         "category": "Runner",
-        "poster": "https://img.gamedistribution.com/a42b109b83b3420fae37c4493e820713-512x512.jpeg",
-        "url": "https://html5.gamedistribution.com/a42b109b83b3420fae37c4493e820713/",
+        "poster": "https://img.gamepix.com/games/tomb-runner/cover/tomb-runner.png?width=300",
+        "url": "https://play.gamepix.com/tomb-runner/embed",
     },
     {
-        "id": "geometry-dash",
+        "id": "geometry-jump",
         "title": "Geometry Dash",
         "category": "Arcade",
-        "poster": "https://img.gamedistribution.com/a1d520be712248ceb9c6f5d84dd6146c-512x512.jpeg",
-        "url": "https://html5.gamedistribution.com/a1d520be712248ceb9c6f5d84dd6146c/",
+        "poster": "https://img.gamepix.com/games/geometry-jump/cover/geometry-jump.png?width=300",
+        "url": "https://play.gamepix.com/geometry-jump/embed",
     },
     {
         "id": "tunnel-rush",
         "title": "Tunnel Rush",
         "category": "Skill",
-        "poster": "https://img.gamedistribution.com/a5e8c1f938d24d27a421b8bbfbf0f772-512x512.jpeg",
-        "url": "https://html5.gamedistribution.com/a5e8c1f938d24d27a421b8bbfbf0f772/",
+        "poster": "https://img.gamepix.com/games/tunnel-rush/cover/tunnel-rush.png?width=300",
+        "url": "https://play.gamepix.com/tunnel-rush/embed",
     },
 ]
 
@@ -265,7 +265,9 @@ HTML_TEMPLATE = """
         <div class="player-container" style="aspect-ratio: 16/10;">
             <iframe 
                 src="{{ game_url }}" 
-                allow="autoplay; gamepad; fullscreen; keyboard" 
+                referrerpolicy="no-referrer"
+                allow="autoplay; gamepad; fullscreen; keyboard; focus-without-user-activation" 
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
                 allowfullscreen>
             </iframe>
         </div>
@@ -284,7 +286,7 @@ HTML_TEMPLATE = """
         {% endif %}
 
         {% if games_list %}
-        <h2 style="text-align:left; color:#ff0055; margin-top:30px; font-size:20px;">🎮 Unblocked HTML5 Games (Poki Style)</h2>
+        <h2 style="text-align:left; color:#ff0055; margin-top:30px; font-size:20px;">🎮 Unblocked HTML5 Games</h2>
         <div class="grid">
             {% for game in games_list %}
             <a class="card" href="/play-game?id={{ game.id }}">
