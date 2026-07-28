@@ -6,63 +6,63 @@ from flask import Flask, Response, render_template_string, request
 
 app = Flask(__name__)
 
-# List of 100% Working Unblocked HTML5 Games
+# List of 100% Working Unblocked HTML5 Games (Clean Static Mirrors)
 GAMES_DATABASE = [
     {
         "id": "subway-surfers",
         "title": "Subway Surfers",
         "category": "Runner",
         "poster": "https://img.gamepix.com/games/subway-surfers/cover/subway-surfers.png?width=300",
-        "url": "https://play.gamepix.com/subway-surfers/embed",
+        "url": "https://k12.pages.dev/games/subway-surfers/",
     },
     {
         "id": "moto-x3m",
         "title": "Moto X3M",
         "category": "Racing",
         "poster": "https://img.gamepix.com/games/moto-x3m/cover/moto-x3m.png?width=300",
-        "url": "https://play.gamepix.com/moto-x3m/embed",
+        "url": "https://k12.pages.dev/games/moto-x3m/",
     },
     {
         "id": "drive-mad",
         "title": "Drive Mad",
         "category": "Driving",
         "poster": "https://img.gamepix.com/games/drive-mad/cover/drive-mad.png?width=300",
-        "url": "https://play.gamepix.com/drive-mad/embed",
+        "url": "https://k12.pages.dev/games/drive-mad/",
     },
     {
-        "id": "basketball-legends",
-        "title": "Basketball Legends",
+        "id": "basketball-stars",
+        "title": "Basketball Stars",
         "category": "Sports",
         "poster": "https://img.gamepix.com/games/basketball-legends-2020/cover/basketball-legends-2020.png?width=300",
-        "url": "https://play.gamepix.com/basketball-legends-2020/embed",
+        "url": "https://k12.pages.dev/games/basketball-stars/",
     },
     {
         "id": "stickman-hook",
         "title": "Stickman Hook",
         "category": "Action",
         "poster": "https://img.gamepix.com/games/stickman-hook/cover/stickman-hook.png?width=300",
-        "url": "https://play.gamepix.com/stickman-hook/embed",
+        "url": "https://k12.pages.dev/games/stickman-hook/",
     },
     {
-        "id": "tomb-runner",
-        "title": "Temple / Tomb Runner",
+        "id": "temple-run-2",
+        "title": "Temple Run 2",
         "category": "Runner",
         "poster": "https://img.gamepix.com/games/tomb-runner/cover/tomb-runner.png?width=300",
-        "url": "https://play.gamepix.com/tomb-runner/embed",
+        "url": "https://k12.pages.dev/games/temple-run-2/",
     },
     {
-        "id": "geometry-jump",
+        "id": "geometry-dash",
         "title": "Geometry Dash",
         "category": "Arcade",
         "poster": "https://img.gamepix.com/games/geometry-jump/cover/geometry-jump.png?width=300",
-        "url": "https://play.gamepix.com/geometry-jump/embed",
+        "url": "https://k12.pages.dev/games/geometry-dash/",
     },
     {
         "id": "tunnel-rush",
         "title": "Tunnel Rush",
         "category": "Skill",
         "poster": "https://img.gamepix.com/games/tunnel-rush/cover/tunnel-rush.png?width=300",
-        "url": "https://play.gamepix.com/tunnel-rush/embed",
+        "url": "https://k12.pages.dev/games/tunnel-rush/",
     },
 ]
 
@@ -268,9 +268,7 @@ HTML_TEMPLATE = """
         <div class="player-container" style="aspect-ratio: 16/10;">
             <iframe 
                 src="{{ game_url }}" 
-                referrerpolicy="no-referrer"
                 allow="autoplay; gamepad; fullscreen; keyboard; focus-without-user-activation" 
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
                 allowfullscreen>
             </iframe>
         </div>
@@ -505,7 +503,6 @@ def watch_anime():
     anime_id = request.args.get("id")
     anime_title = request.args.get("title", "anime")
 
-    # Fast default server: VidSrc Pro
     stream_url = f"https://vidsrc.pro/embed/anime/{anime_id}"
 
     return render_template_string(
@@ -528,7 +525,6 @@ def proxy():
     if not user_input:
         return "Search query or URL is missing.", 400
 
-    # 1. Unblocked Games Arcade Tab
     if user_input.lower() in ["games", "game", "poki", "arcade", "unblocked games"]:
         return render_template_string(
             HTML_TEMPLATE,
@@ -542,7 +538,6 @@ def proxy():
             last_query="games",
         )
 
-    # 2. Anime & Movies Tab
     if user_input.lower() in ["anime", "movies", "shows", "dragon ball"]:
         results = search_anilist(user_input if user_input != "anime" else "Dragon Ball")
         return render_template_string(
@@ -557,7 +552,6 @@ def proxy():
             last_query=user_input,
         )
 
-    # 3. YouTube Portal
     if user_input.lower() in [
         "youtube",
         "youtube.com",
@@ -579,7 +573,6 @@ def proxy():
             last_query="youtube.com",
         )
 
-    # 4. Direct YouTube Video Links
     yt_id = extract_youtube_id(user_input)
     if yt_id:
         return render_template_string(
@@ -594,7 +587,6 @@ def proxy():
             last_query=user_input,
         )
 
-    # 5. Search AniList for Anime & Movies
     anime_hits = search_anilist(user_input)
 
     is_url = user_input.startswith(("http://", "https://")) or (
