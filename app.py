@@ -18,7 +18,7 @@ HTML_TEMPLATE = """
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(rgba(10, 10, 18, 0.75), rgba(10, 10, 18, 0.85)), 
-                        url('https://raw.githubusercontent.com/sonicky-droid/my-web-proxy/main/background.jpg') no-repeat center center fixed;
+                        url('https://i.postimg.cc/kGB59Kvz/background-jpg.jpg') no-repeat center center fixed;
             background-size: cover;
             color: #ffffff;
             margin: 0;
