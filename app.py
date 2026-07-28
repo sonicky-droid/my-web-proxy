@@ -6,7 +6,7 @@ from flask import Flask, Response, render_template_string, request
 
 app = Flask(__name__)
 
-# List of 100% Working Unblocked HTML5 Games (GamePix Engine)
+# List of 100% Working Unblocked HTML5 Games
 GAMES_DATABASE = [
     {
         "id": "subway-surfers",
@@ -66,7 +66,7 @@ GAMES_DATABASE = [
     },
 ]
 
-# Main HTML Page Template with Background Image Slideshow Engine & Glassmorphism UI
+# Main HTML Page Template
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -151,23 +151,26 @@ HTML_TEMPLATE = """
             background: rgba(0, 0, 0, 0.7);
         }
 
-        button {
-            padding: 16px 28px;
-            font-size: 16px;
+        button, .server-btn {
+            padding: 12px 20px;
+            font-size: 14px;
             background: linear-gradient(135deg, #ff0055, #ff5500);
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: 700;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(255, 0, 85, 0.3);
         }
 
-        button:hover {
+        button:hover, .server-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(255, 0, 85, 0.5);
         }
+
+        .server-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
+        .server-btn:hover { background: #ff0055; }
 
         .nav-links { margin-bottom: 25px; }
         .nav-links a {
@@ -186,7 +189,7 @@ HTML_TEMPLATE = """
             background: #000;
             border-radius: 14px;
             overflow: hidden;
-            margin-top: 25px;
+            margin-top: 15px;
             box-shadow: 0 10px 30px rgba(255, 0, 85, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -240,12 +243,12 @@ HTML_TEMPLATE = """
         
         <form class="input-group" action="/proxy" method="GET">
             <input type="text" name="url" placeholder="Search Games, Anime/Movies, YouTube, or type a website address..." value="{{ last_query }}" required />
-            <button type="submit">Search / Play</button>
+            <button type="submit" style="padding: 16px 28px; font-size:16px;">Search / Play</button>
         </form>
 
         <div class="nav-links">
-            <a href="/proxy?url=games" style="color:#ff0055; font-size:16px;">🎮 Unblocked Games Arcade</a> | 
             <a href="/proxy?url=anime">⛩️ Anime & Movies</a> | 
+            <a href="/proxy?url=games">🎮 Unblocked Games</a> | 
             <a href="/proxy?url=youtube.com">▶️ YouTube</a> | 
             <a href="/proxy?url=wikipedia.org">🌐 Wikipedia</a>
         </div>
@@ -275,14 +278,30 @@ HTML_TEMPLATE = """
 
         {% if stream_url %}
         <h3 style="color:#ff0055; margin-top:20px;">Ad-Free Stream Player</h3>
+        <p style="font-size:13px; color:#aaa; margin-bottom:10px;">If stream fails, click a backup server below:</p>
+        
+        <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:15px;">
+            <button class="server-btn" onclick="switchServer('https://vidsrc.pro/embed/anime/{{ anime_id }}')">Server 1 (VidSrc Pro)</button>
+            <button class="server-btn" onclick="switchServer('https://autoembed.cc/embed/anime/{{ anime_id }}')">Server 2 (AutoEmbed)</button>
+            <button class="server-btn" onclick="switchServer('https://2embed.cc/embed/anime/{{ anime_id }}')">Server 3 (2Embed)</button>
+            <button class="server-btn" onclick="switchServer('https://vidsrc.in/embed/anime/{{ anime_id }}')">Server 4 (VidSrc In)</button>
+        </div>
+
         <div class="player-container">
             <iframe 
+                id="streamPlayer"
                 src="{{ stream_url }}" 
-                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+                referrerpolicy="no-referrer"
                 allow="autoplay; encrypted-media; fullscreen" 
                 allowfullscreen>
             </iframe>
         </div>
+
+        <script>
+            function switchServer(newUrl) {
+                document.getElementById('streamPlayer').src = newUrl;
+            }
+        </script>
         {% endif %}
 
         {% if games_list %}
@@ -452,6 +471,7 @@ def index():
         HTML_TEMPLATE,
         video_id=None,
         stream_url=None,
+        anime_id=None,
         game_url=None,
         yt_results=None,
         anime_results=None,
@@ -471,6 +491,7 @@ def play_game():
         HTML_TEMPLATE,
         video_id=None,
         stream_url=None,
+        anime_id=None,
         game_url=target_game["url"],
         yt_results=None,
         anime_results=None,
@@ -484,12 +505,14 @@ def watch_anime():
     anime_id = request.args.get("id")
     anime_title = request.args.get("title", "anime")
 
-    stream_url = f"https://vidsrc.cc/v2/embed/anime/{anime_id}"
+    # Fast default server: VidSrc Pro
+    stream_url = f"https://vidsrc.pro/embed/anime/{anime_id}"
 
     return render_template_string(
         HTML_TEMPLATE,
         video_id=None,
         stream_url=stream_url,
+        anime_id=anime_id,
         game_url=None,
         yt_results=None,
         anime_results=None,
@@ -511,6 +534,7 @@ def proxy():
             HTML_TEMPLATE,
             video_id=None,
             stream_url=None,
+            anime_id=None,
             game_url=None,
             yt_results=None,
             anime_results=None,
@@ -525,6 +549,7 @@ def proxy():
             HTML_TEMPLATE,
             video_id=None,
             stream_url=None,
+            anime_id=None,
             game_url=None,
             yt_results=None,
             anime_results=results,
@@ -546,6 +571,7 @@ def proxy():
             HTML_TEMPLATE,
             video_id=None,
             stream_url=None,
+            anime_id=None,
             game_url=None,
             yt_results=results,
             anime_results=None,
@@ -560,6 +586,7 @@ def proxy():
             HTML_TEMPLATE,
             video_id=yt_id,
             stream_url=None,
+            anime_id=None,
             game_url=None,
             yt_results=None,
             anime_results=None,
@@ -579,6 +606,7 @@ def proxy():
             HTML_TEMPLATE,
             video_id=None,
             stream_url=None,
+            anime_id=None,
             game_url=None,
             yt_results=None,
             anime_results=anime_hits,
@@ -598,6 +626,7 @@ def proxy():
                 HTML_TEMPLATE,
                 video_id=None,
                 stream_url=None,
+                anime_id=None,
                 game_url=None,
                 yt_results=results,
                 anime_results=None,
