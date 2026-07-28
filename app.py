@@ -246,7 +246,7 @@ SLIDESHOW_SCRIPT = """
     </script>
 """
 
-# Home Page Template with 9anime, KissKH, and Poki Quick Launch
+# Home Page Template with KissKH.do and Poki Quick Launch
 HOME_TEMPLATE = (
     """
 <!DOCTYPE html>
@@ -274,8 +274,7 @@ HOME_TEMPLATE = (
         </div>
 
         <div style="margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-            <a class="site-btn" href="/proxy?url=https://9animetv.to" style="text-decoration:none;">🌸 9anime</a>
-            <a class="site-btn" href="/proxy?url=https://kisskh.co" style="text-decoration:none;">💋 KissKH.co</a>
+            <a class="site-btn" href="/proxy?url=https://kisskh.do" style="text-decoration:none;">💋 KissKH.do</a>
             <a class="site-btn" href="/proxy?url=https://poki.com" style="text-decoration:none;">🎮 Poki.com</a>
         </div>
 
@@ -287,8 +286,7 @@ HOME_TEMPLATE = (
         <div style="margin-top:25px; text-align:left;">
             <h3 style="color:#ff0055;">✨ Quick Access Portals:</h3>
             <ul style="color:#ccc; line-height:1.8;">
-                <li><b>🌸 9anime:</b> Direct launch portal for 9anime.</li>
-                <li><b>💋 KissKH.co:</b> Direct launch portal for Asian dramas, anime & movies.</li>
+                <li><b>💋 KissKH.do:</b> Direct launch portal for KissKH dramas, anime & movies.</li>
                 <li><b>🎮 Poki.com:</b> Direct access to Poki games library.</li>
                 <li><b>⛩️ Anime Center:</b> Native HD stream player for Dragon Ball, Naruto, One Piece, etc.</li>
             </ul>
