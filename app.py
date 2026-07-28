@@ -6,7 +6,9 @@ from flask import Flask, Response, render_template_string, request
 
 app = Flask(__name__)
 
-# List of 100% Working Unblocked HTML5 Games (Clean Static Mirrors)
+TMDB_API_KEY = "15d2fb6fe02810145405a2682f028b27"  # Public TMDB Search Key
+
+# List of 100% Working Unblocked HTML5 Games
 GAMES_DATABASE = [
     {
         "id": "subway-surfers",
@@ -51,7 +53,7 @@ GAMES_DATABASE = [
         "url": "https://k12.pages.dev/games/temple-run-2/",
     },
     {
-        "id": "geometry-dash",
+        "id": "geometry-jump",
         "title": "Geometry Dash",
         "category": "Arcade",
         "poster": "https://img.gamepix.com/games/geometry-jump/cover/geometry-jump.png?width=300",
@@ -66,7 +68,7 @@ GAMES_DATABASE = [
     },
 ]
 
-# Main HTML Page Template
+# HTML Page Template
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -242,12 +244,12 @@ HTML_TEMPLATE = """
         <p>Browse websites, stream anime/movies, or play <b>Unblocked HTML5 Games</b>!</p>
         
         <form class="input-group" action="/proxy" method="GET">
-            <input type="text" name="url" placeholder="Search Games, Anime/Movies, YouTube, or type a website address..." value="{{ last_query }}" required />
+            <input type="text" name="url" placeholder="Search Movies/Anime, Games, YouTube, or type a website address..." value="{{ last_query }}" required />
             <button type="submit" style="padding: 16px 28px; font-size:16px;">Search / Play</button>
         </form>
 
         <div class="nav-links">
-            <a href="/proxy?url=anime">⛩️ Anime & Movies</a> | 
+            <a href="/proxy?url=anime">⛩️ Movies & Anime</a> | 
             <a href="/proxy?url=games">🎮 Unblocked Games</a> | 
             <a href="/proxy?url=youtube.com">▶️ YouTube</a> | 
             <a href="/proxy?url=wikipedia.org">🌐 Wikipedia</a>
@@ -268,27 +270,28 @@ HTML_TEMPLATE = """
         <div class="player-container" style="aspect-ratio: 16/10;">
             <iframe 
                 src="{{ game_url }}" 
+                referrerpolicy="no-referrer"
                 allow="autoplay; gamepad; fullscreen; keyboard; focus-without-user-activation" 
                 allowfullscreen>
             </iframe>
         </div>
         {% endif %}
 
-        {% if stream_url %}
+        {% if media_id %}
         <h3 style="color:#ff0055; margin-top:20px;">Ad-Free Stream Player</h3>
         <p style="font-size:13px; color:#aaa; margin-bottom:10px;">If stream fails, click a backup server below:</p>
         
         <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:15px;">
-            <button class="server-btn" onclick="switchServer('https://vidsrc.pro/embed/anime/{{ anime_id }}')">Server 1 (VidSrc Pro)</button>
-            <button class="server-btn" onclick="switchServer('https://autoembed.cc/embed/anime/{{ anime_id }}')">Server 2 (AutoEmbed)</button>
-            <button class="server-btn" onclick="switchServer('https://2embed.cc/embed/anime/{{ anime_id }}')">Server 3 (2Embed)</button>
-            <button class="server-btn" onclick="switchServer('https://vidsrc.in/embed/anime/{{ anime_id }}')">Server 4 (VidSrc In)</button>
+            <button class="server-btn" onclick="switchServer('https://embed.su/embed/{{ media_type }}/{{ media_id }}{% if media_type == \"tv\" %}/1/1{% endif %}')">Server 1 (Embed.su)</button>
+            <button class="server-btn" onclick="switchServer('https://autoembed.co/{{ media_type }}/tmdb/{{ media_id }}{% if media_type == \"tv\" %}-1-1{% endif %}')">Server 2 (AutoEmbed)</button>
+            <button class="server-btn" onclick="switchServer('https://vidsrc.cc/v2/embed/{{ media_type }}/{{ media_id }}{% if media_type == \"tv\" %}/1/1{% endif %}')">Server 3 (VidSrc CC)</button>
+            <button class="server-btn" onclick="switchServer('https://multiembed.mov/directstream.php?video_id={{ media_id }}')">Server 4 (MultiEmbed)</button>
         </div>
 
         <div class="player-container">
             <iframe 
                 id="streamPlayer"
-                src="{{ stream_url }}" 
+                src="https://embed.su/embed/{{ media_type }}/{{ media_id }}{% if media_type == 'tv' %}/1/1{% endif %}" 
                 referrerpolicy="no-referrer"
                 allow="autoplay; encrypted-media; fullscreen" 
                 allowfullscreen>
@@ -302,30 +305,30 @@ HTML_TEMPLATE = """
         </script>
         {% endif %}
 
-        {% if games_list %}
-        <h2 style="text-align:left; color:#ff0055; margin-top:30px; font-size:20px;">🎮 Unblocked HTML5 Games</h2>
+        {% if media_results %}
+        <h2 style="text-align:left; color:#ff0055; margin-top:30px; font-size:20px;">Movies & Anime Results</h2>
         <div class="grid">
-            {% for game in games_list %}
-            <a class="card" href="/play-game?id={{ game.id }}">
-                <img src="{{ game.poster }}" alt="game" loading="lazy" />
+            {% for item in media_results %}
+            <a class="card" href="/watch-media?id={{ item.id }}&type={{ item.media_type }}&title={{ item.title | urlencode }}">
+                <img src="{{ item.poster }}" alt="poster" loading="lazy" />
                 <div class="card-body">
-                    <div class="card-title">{{ game.title }}</div>
-                    <div class="card-sub">{{ game.category }}</div>
+                    <div class="card-title">{{ item.title }}</div>
+                    <div class="card-sub">{{ item.media_type | upper }} ({{ item.year }})</div>
                 </div>
             </a>
             {% endfor %}
         </div>
         {% endif %}
 
-        {% if anime_results %}
-        <h2 style="text-align:left; color:#ff0055; margin-top:30px; font-size:20px;">Anime & Movie Results</h2>
+        {% if games_list %}
+        <h2 style="text-align:left; color:#ff0055; margin-top:30px; font-size:20px;">🎮 Unblocked HTML5 Games</h2>
         <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
-            {% for show in anime_results %}
-            <a class="card" href="/watch-anime?id={{ show.id }}&title={{ show.title | urlencode }}">
-                <img src="{{ show.poster }}" alt="poster" loading="lazy" style="aspect-ratio: 2/3;" />
+            {% for game in games_list %}
+            <a class="card" href="/play-game?id={{ game.id }}">
+                <img src="{{ game.poster }}" alt="game" loading="lazy" style="aspect-ratio: 1/1;" />
                 <div class="card-body">
-                    <div class="card-title">{{ show.title }}</div>
-                    <div class="card-sub">{{ show.episodes }} Ep</div>
+                    <div class="card-title">{{ game.title }}</div>
+                    <div class="card-sub">{{ game.category }}</div>
                 </div>
             </a>
             {% endfor %}
@@ -387,46 +390,33 @@ def extract_youtube_id(url_or_id):
     return None
 
 
-def search_anilist(query):
+def search_tmdb_media(query):
+    """Searches TMDB for Movies, TV Shows, and Anime with guaranteed working IDs"""
     try:
-        url = "https://graphql.anilist.co"
-        graphql_query = """
-        query ($search: String) {
-          Page(perPage: 12) {
-            media(search: $search, type: ANIME) {
-              id
-              title { english romaji }
-              coverImage { extraLarge }
-              episodes
-            }
-          }
-        }
-        """
-        response = requests.post(
-            url,
-            json={"query": graphql_query, "variables": {"search": query}},
-            timeout=8,
-        )
-        data = response.json()
+        url = f"https://api.themoviedb.org/3/search/multi?api_key={TMDB_API_KEY}&query={urllib.parse.quote(query)}&include_adult=false"
+        resp = requests.get(url, timeout=8).json()
         results = []
-        media_list = data.get("data", {}).get("Page", {}).get("media", [])
-        for item in media_list:
-            title = (
-                item.get("title", {}).get("english")
-                or item.get("title", {}).get("romaji")
-                or "Unknown Title"
-            )
-            poster = item.get("coverImage", {}).get("extraLarge")
-            episodes = item.get("episodes") or 1
-            if poster:
-                results.append(
-                    {
-                        "id": item["id"],
-                        "title": title,
-                        "poster": poster,
-                        "episodes": episodes,
-                    }
+        for item in resp.get("results", [])[:12]:
+            media_type = item.get("media_type")
+            if media_type in ["movie", "tv"]:
+                title = item.get("title") or item.get("name")
+                poster_path = item.get("poster_path")
+                release_date = item.get("release_date") or item.get(
+                    "first_air_date", ""
                 )
+                year = release_date[:4] if release_date else "N/A"
+
+                if poster_path and title:
+                    poster_url = f"https://image.tmdb.org/t/p/w500{poster_path}"
+                    results.append(
+                        {
+                            "id": item["id"],
+                            "title": title,
+                            "media_type": media_type,
+                            "poster": poster_url,
+                            "year": year,
+                        }
+                    )
         return results
     except Exception:
         return []
@@ -468,11 +458,11 @@ def index():
     return render_template_string(
         HTML_TEMPLATE,
         video_id=None,
-        stream_url=None,
-        anime_id=None,
+        media_id=None,
+        media_type=None,
         game_url=None,
         yt_results=None,
-        anime_results=None,
+        media_results=None,
         games_list=GAMES_DATABASE,
         last_query="",
     )
@@ -488,33 +478,32 @@ def play_game():
     return render_template_string(
         HTML_TEMPLATE,
         video_id=None,
-        stream_url=None,
-        anime_id=None,
+        media_id=None,
+        media_type=None,
         game_url=target_game["url"],
         yt_results=None,
-        anime_results=None,
+        media_results=None,
         games_list=GAMES_DATABASE,
         last_query=target_game["title"],
     )
 
 
-@app.route("/watch-anime")
-def watch_anime():
-    anime_id = request.args.get("id")
-    anime_title = request.args.get("title", "anime")
-
-    stream_url = f"https://vidsrc.pro/embed/anime/{anime_id}"
+@app.route("/watch-media")
+def watch_media():
+    media_id = request.args.get("id")
+    media_type = request.args.get("type", "movie")
+    media_title = request.args.get("title", "movie")
 
     return render_template_string(
         HTML_TEMPLATE,
         video_id=None,
-        stream_url=stream_url,
-        anime_id=anime_id,
+        media_id=media_id,
+        media_type=media_type,
         game_url=None,
         yt_results=None,
-        anime_results=None,
+        media_results=None,
         games_list=None,
-        last_query=anime_title,
+        last_query=media_title,
     )
 
 
@@ -529,25 +518,27 @@ def proxy():
         return render_template_string(
             HTML_TEMPLATE,
             video_id=None,
-            stream_url=None,
-            anime_id=None,
+            media_id=None,
+            media_type=None,
             game_url=None,
             yt_results=None,
-            anime_results=None,
+            media_results=None,
             games_list=GAMES_DATABASE,
             last_query="games",
         )
 
     if user_input.lower() in ["anime", "movies", "shows", "dragon ball"]:
-        results = search_anilist(user_input if user_input != "anime" else "Dragon Ball")
+        results = search_tmdb_media(
+            user_input if user_input != "anime" else "Dragon Ball"
+        )
         return render_template_string(
             HTML_TEMPLATE,
             video_id=None,
-            stream_url=None,
-            anime_id=None,
+            media_id=None,
+            media_type=None,
             game_url=None,
             yt_results=None,
-            anime_results=results,
+            media_results=results,
             games_list=None,
             last_query=user_input,
         )
@@ -564,11 +555,11 @@ def proxy():
         return render_template_string(
             HTML_TEMPLATE,
             video_id=None,
-            stream_url=None,
-            anime_id=None,
+            media_id=None,
+            media_type=None,
             game_url=None,
             yt_results=results,
-            anime_results=None,
+            media_results=None,
             games_list=None,
             last_query="youtube.com",
         )
@@ -578,30 +569,30 @@ def proxy():
         return render_template_string(
             HTML_TEMPLATE,
             video_id=yt_id,
-            stream_url=None,
-            anime_id=None,
+            media_id=None,
+            media_type=None,
             game_url=None,
             yt_results=None,
-            anime_results=None,
+            media_results=None,
             games_list=None,
             last_query=user_input,
         )
 
-    anime_hits = search_anilist(user_input)
+    media_hits = search_tmdb_media(user_input)
 
     is_url = user_input.startswith(("http://", "https://")) or (
         "." in user_input and " " not in user_input
     )
 
-    if not is_url and anime_hits:
+    if not is_url and media_hits:
         return render_template_string(
             HTML_TEMPLATE,
             video_id=None,
-            stream_url=None,
-            anime_id=None,
+            media_id=None,
+            media_type=None,
             game_url=None,
             yt_results=None,
-            anime_results=anime_hits,
+            media_results=media_hits,
             games_list=None,
             last_query=user_input,
         )
@@ -617,11 +608,11 @@ def proxy():
             return render_template_string(
                 HTML_TEMPLATE,
                 video_id=None,
-                stream_url=None,
-                anime_id=None,
+                media_id=None,
+                media_type=None,
                 game_url=None,
                 yt_results=results,
-                anime_results=None,
+                media_results=None,
                 games_list=None,
                 last_query=user_input,
             )
