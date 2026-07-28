@@ -1,3 +1,4 @@
+import os
 import requests
 from flask import Flask, Response, render_template_string, request
 
@@ -76,20 +77,4 @@ def proxy():
         excluded_headers = [
             "content-encoding",
             "content-length",
-            "transfer-encoding",
-            "connection",
-        ]
-        response_headers = [
-            (name, value)
-            for (name, value) in resp.raw.headers.items()
-            if name.lower() not in excluded_headers
-        ]
-
-        return Response(content, resp.status_code, response_headers)
-
-    except Exception as e:
-        return f"Proxy Error: {str(e)}", 500
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+            "transfer-en
